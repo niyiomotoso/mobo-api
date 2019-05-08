@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "docker-compose -f docker/docker-compose.test.yml up --build --abort-on-container-exit",
-    "production": "docker-compose -f docker/docker-compose.yml up -d",
-    "build": "docker-compose -f docker/docker-compose.yml build"
+    "dockertest": "docker-compose -f docker/docker-compose.test.yml up --build --abort-on-container-exit",
+    "dockerproduction": "docker-compose -f docker/docker-compose.yml up -d",
+    "dockerbuild": "docker-compose -f docker/docker-compose.yml build"
   },
   "repository": {
     "type": "git",
