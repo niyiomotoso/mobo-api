@@ -45,7 +45,12 @@ UsersRouter.routesConfig(app);
 //       app.emit('APP_STARTED')
 //     })
 //   });
-  
-app.listen(config.port, function () {
-    console.log('app listening at port %s', config.port);
+
+var server_port = process.env.PORT || config.port;
+app.listen(server_port, function() {
+    console.log('Listening on port %d', server_port);
 });
+
+// app.listen(config.port, function () {
+//     console.log('app listening at port %s', config.port);
+// });
