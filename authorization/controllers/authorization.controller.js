@@ -3,6 +3,7 @@ const jwtSecret = require('../../common/config/env.config.js').jwt_secret,
 const crypto = require('crypto');
 const uuid = require('node-uuid');
 
+
 exports.login = (req, res) => {
     try {
         let refreshId = req.body.userId + jwtSecret;
