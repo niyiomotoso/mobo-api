@@ -3,11 +3,10 @@ const MongoClient = require('mongodb').MongoClient
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
-const dbName = process.env.NODE_ENV === 'dev' ? 'leap-test' : 'leap' 
-const url = `mongodb://${process.env.MONGO_INITDB_ROOT_USERNAME}:${process.env.MONGO_INITDB_ROOT_PASSWORD}@localhost:27017/${dbName}?authMechanism=SCRAM-SHA-1&authSource=admin`
+// const dbName = process.env.NODE_ENV === 'test' ? 'leap-test' : 'leap';
+// const url = `mongodb://${process.env.MONGO_INITDB_ROOT_USERNAME}:${process.env.MONGO_INITDB_ROOT_PASSWORD}@localhost:27017/${dbName}?authMechanism=SCRAM-SHA-1&authSource=admin`
 const AuthorizationRouter = require('./authorization/routes.config');
 const UsersRouter = require('./users/routes.config');
-
 const options = {
     useNewUrlParser: true, 
     reconnectTries: 60, 

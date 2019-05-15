@@ -1,5 +1,6 @@
+const config = require('../../common/config/env.config.js');
 const mongoose = require('mongoose');
-mongoose.connect('mongodb://mongo_user:mongo_password@database:27017');
+mongoose.connect(config.MONGO_URL);
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
@@ -7,8 +8,10 @@ const userSchema = new Schema({
     lastName: String,
     email: String,
     password: String,
-    permissionLevel: Number
-});
+    phone: String,
+    permissionLevel: Number,
+    
+}, {timestamps: true});
 
 userSchema.virtual('id').get(function () {
     return this._id.toHexString();
@@ -63,6 +66,7 @@ exports.patchUser = (id, userData) => {
     return new Promise((resolve, reject) => {
         User.findById(id, function (err, user) {
             if (err) reject(err);
+            userData.updated_at = new Date();
             for (let i in userData) {
                 user[i] = userData[i];
             }

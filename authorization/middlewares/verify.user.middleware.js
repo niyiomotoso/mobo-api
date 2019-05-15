@@ -27,7 +27,7 @@ exports.isPasswordAndUserMatch = (req, res, next) => {
         .then((user)=>{
             if(!user[0]){
                 //res.status(404).send({});
-                return res.status(400).send({errors: ['user does not exiszz']});
+                return res.status(400).send({errors: ['user does not exist']});
             }else{
                 let passwordFields = user[0].password.split('$');
                 let salt = passwordFields[0];

@@ -42,7 +42,7 @@ exports.patchById = (req, res) => {
 
     UserModel.patchUser(req.params.userId, req.body)
         .then((result) => {
-            res.status(204).send({});
+            res.status(204).send({result});
         });
 
 };
