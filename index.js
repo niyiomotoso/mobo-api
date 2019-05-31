@@ -7,6 +7,7 @@ const bodyParser = require('body-parser');
 // const url = `mongodb://${process.env.MONGO_INITDB_ROOT_USERNAME}:${process.env.MONGO_INITDB_ROOT_PASSWORD}@localhost:27017/${dbName}?authMechanism=SCRAM-SHA-1&authSource=admin`
 const AuthorizationRouter = require('./authorization/routes.config');
 const UsersRouter = require('./users/routes.config');
+const AssessmentsRouter = require('./assessment_questions/routes.config');
 const options = {
     useNewUrlParser: true, 
     reconnectTries: 60, 
@@ -32,7 +33,7 @@ app.use(bodyParser.urlencoded({ extended: true }))
 
 AuthorizationRouter.routesConfig(app);
 UsersRouter.routesConfig(app);
-
+AssessmentsRouter.routesConfig(app);
 // MongoClient.connect(url, options, (err, database) => {
 //     if (err) {
 //       console.log(`FATAL MONGODB CONNECTION ERROR: ${err}:${err.stack}`)

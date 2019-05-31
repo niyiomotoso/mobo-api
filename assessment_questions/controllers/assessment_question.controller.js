@@ -1,12 +1,12 @@
-const UserModel = require('../models/users.model');
+const AssessQuestionModel = require('../models/assessment_question.model');
 const crypto = require('crypto');
 
 exports.insert = (req, res) => {
-    let salt = crypto.randomBytes(16).toString('base64');
-    let hash = crypto.createHmac('sha512', salt).update(req.body.password).digest("base64");
-    req.body.password = salt + "$" + hash;
-    req.body.permissionLevel = 1;
-    UserModel.createUser(req.body)
+    // let salt = crypto.randomBytes(16).toString('base64');
+    // let hash = crypto.createHmac('sha512', salt).update(req.body.password).digest("base64");
+    // req.body.password = salt + "$" + hash;
+    // req.body.permissionLevel = 1;
+    AssessQuestionModel.createAssessment(req.body)
         .then((result) => {
             res.status(201).send({id: result._id});
         });
@@ -21,34 +21,29 @@ exports.list = (req, res) => {
             page = Number.isInteger(req.query.page) ? req.query.page : 0;
         }
     }
-    UserModel.list(limit, page)
+    AssessQuestionModel.list(limit, page)
         .then((result) => {
             res.status(200).send(result);
         })
 };
 
-exports.getById = (req, res) => {
-    UserModel.findById(req.params.userId)
+exports.getByUserId = (req, res) => {
+    AssessQuestionModel.findById(req.params.userId)
         .then((result) => {
             res.status(200).send(result);
         });
 };
-exports.patchById = (req, res) => {
-    if (req.body.password) {
-        let salt = crypto.randomBytes(16).toString('base64');
-        let hash = crypto.createHmac('sha512', salt).update(req.body.password).digest("base64");
-        req.body.password = salt + "$" + hash;
-    }
-
-    UserModel.patchUser(req.params.userId, req.body)
+exports.patchByUserId = (req, res) => {
+ 
+    AssessQuestionModel.patchAssessment(req.params.userId, req.body)
         .then((result) => {
             res.status(200).send({result});
         });
 
 };
 
-exports.removeById = (req, res) => {
-    UserModel.removeById(req.params.userId)
+exports.removeByUserId = (req, res) => {
+    AssessQuestionModel.removeById(req.params.userId)
         .then((result)=>{
             res.status(200).send({});
         });
