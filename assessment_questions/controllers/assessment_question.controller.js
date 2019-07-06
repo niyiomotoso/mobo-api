@@ -1,5 +1,6 @@
 const AssessQuestionModel = require('../models/assessment_question.model');
 const crypto = require('crypto');
+const response = require('../../common/jsonResponse');
 
 exports.insert = (req, res) => {
     // let salt = crypto.randomBytes(16).toString('base64');
@@ -8,7 +9,8 @@ exports.insert = (req, res) => {
     // req.body.permissionLevel = 1;
     AssessQuestionModel.createAssessment(req.body)
         .then((result) => {
-            res.status(201).send({id: result._id});
+           // res.status(201).send({id: result._id});
+            res.status(200).send(response.success({id: result._id}, "Added Successfully"));
         });
 };
 
@@ -23,21 +25,24 @@ exports.list = (req, res) => {
     }
     AssessQuestionModel.list(limit, page)
         .then((result) => {
-            res.status(200).send(result);
+           // res.status(200).send(result);
+            res.status(200).send(response.success(result, "Loaded Successfully"));
         })
 };
 
 exports.getByUserId = (req, res) => {
     AssessQuestionModel.findById(req.params.userId)
         .then((result) => {
-            res.status(200).send(result);
+          //  res.status(200).send(result);
+            res.status(200).send(response.success(result, "Loaded Successfully"));
         });
 };
 exports.patchByUserId = (req, res) => {
  
     AssessQuestionModel.patchAssessment(req.params.userId, req.body)
         .then((result) => {
-            res.status(200).send({result});
+         //   res.status(200).send({result});
+            res.status(200).send(response.success(result, "Updated Successfully"));
         });
 
 };
@@ -45,6 +50,7 @@ exports.patchByUserId = (req, res) => {
 exports.removeByUserId = (req, res) => {
     AssessQuestionModel.removeById(req.params.userId)
         .then((result)=>{
-            res.status(200).send({});
+            //res.status(200).send({});
+            res.status(200).send(response.success(result, "Deleted Successfully"));
         });
 };

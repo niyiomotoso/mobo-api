@@ -2,6 +2,8 @@ const jwtSecret = require('../../common/config/env.config.js').jwt_secret,
     jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const uuid = require('node-uuid');
+const response = require('../../common/jsonResponse');
+const UserPortfolioModel = require('../../users/models/users_portfolio.model');
 
 exports.login = (req, res) => {
     try {
@@ -12,7 +14,27 @@ exports.login = (req, res) => {
         let token = jwt.sign(req.body, jwtSecret);
         let b = new Buffer(hash);
         let refresh_token = b.toString('base64');
-        res.status(201).send({accessToken: token, refreshToken: refresh_token});
+        
+        //res.status(200).send(response.success({accessToken: token, refreshToken: refresh_token}, "Login Success"));
+        UserPortfolioModel.getUserPartners(req.body.userId)
+        .then((user_partners) => {
+            
+            UserPortfolioModel.getUserReferrals(req.body.userId)
+            .then((user_referrals) => {
+                
+                UserPortfolioModel.getUserWalletBalance(req.body.userId)
+                .then((balance) => {
+                    
+                     res.status(200).send(response.success({accessToken: token, refreshToken: refresh_token, 
+                    balance: balance, partners: user_partners, referrals: user_referrals, bio: req.body}, "Login Success"));
+       
+                
+                });
+            
+            });
+        
+        });
+
     } catch (err) {
         res.status(500).send({errors: err});
     }

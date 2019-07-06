@@ -8,6 +8,8 @@ const bodyParser = require('body-parser');
 const AuthorizationRouter = require('./authorization/routes.config');
 const UsersRouter = require('./users/routes.config');
 const AssessmentsRouter = require('./assessment_questions/routes.config');
+const LoanRouter = require('./loans/routes.config');
+// const PartnersRouter = require('./partners/routes.config');
 const options = {
     useNewUrlParser: true, 
     reconnectTries: 60, 
@@ -34,6 +36,8 @@ app.use(bodyParser.urlencoded({ extended: true }))
 AuthorizationRouter.routesConfig(app);
 UsersRouter.routesConfig(app);
 AssessmentsRouter.routesConfig(app);
+LoanRouter.routesConfig(app);
+
 // MongoClient.connect(url, options, (err, database) => {
 //     if (err) {
 //       console.log(`FATAL MONGODB CONNECTION ERROR: ${err}:${err.stack}`)

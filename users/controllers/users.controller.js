@@ -1,5 +1,6 @@
 const UserModel = require('../models/users.model');
 const crypto = require('crypto');
+const response = require('../../common/jsonResponse');
 
 exports.insert = (req, res) => {
     let salt = crypto.randomBytes(16).toString('base64');
@@ -8,7 +9,18 @@ exports.insert = (req, res) => {
     req.body.permissionLevel = 1;
     UserModel.createUser(req.body)
         .then((result) => {
-            res.status(201).send({id: result._id});
+            //res.status(201).send({id: result._id});
+            console.log("controller", result);
+            if(result == "phone_exist"){
+                res.status(200).send(response.failure( "phone number already exist"));
+           
+            }else if(result == "email_exist"){
+                res.status(200).send(response.failure( "email already exist"));
+           
+            }else{
+                res.status(200).send(response.success({id: result.userId}, "User Added Successfully"));
+            
+            }
         });
 };
 
@@ -30,7 +42,9 @@ exports.list = (req, res) => {
 exports.getById = (req, res) => {
     UserModel.findById(req.params.userId)
         .then((result) => {
-            res.status(200).send(result);
+         
+            res.status(200).send(response.success(result, "Loaded Successfully"));
+        
         });
 };
 exports.patchById = (req, res) => {
@@ -42,7 +56,9 @@ exports.patchById = (req, res) => {
 
     UserModel.patchUser(req.params.userId, req.body)
         .then((result) => {
-            res.status(200).send({result});
+            //res.status(200).send({result});
+            res.status(200).send(response.success(result, "Edited Successfully"));
+        
         });
 
 };
@@ -50,6 +66,8 @@ exports.patchById = (req, res) => {
 exports.removeById = (req, res) => {
     UserModel.removeById(req.params.userId)
         .then((result)=>{
-            res.status(200).send({});
+            //res.status(200).send({});
+            res.status(200).send(response.success(result, "Deleted Successfully"));
+        
         });
 };
