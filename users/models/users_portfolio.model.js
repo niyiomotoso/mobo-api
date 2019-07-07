@@ -75,69 +75,25 @@ exports.createNewAccount = (userId) =>{
 };
 
 
-exports.addToUserReferrals = (userId, Data, newUserId ) => {
+exports.addToUserReferrals = (userId, Data ) => {
     return new Promise((resolve, reject) => {
               
         UserModel.findById(userId).then((result) => {
-      //  result = result.toJSON();
-        if(result.length == 0)
+      
+        if(result == null || result.length == 0)
         resolve("user_not_exist"); 
         else{
-          //  return result;
+            var user_fullname = result.firstName+ " "+result.lastName;
             userPortfolio.findOne({userId: userId}, function(err, portfolio_details) {
-                console.log("user id",userId );
-                console.log("portfolio_details id",portfolio_details );
+               
                 var currentRefs = portfolio_details.referrals;
                 let ids = Data.phones;
-                var idVerificationPromise = new Promise((resolve, reject) => {
                     ids.forEach((element, index, array) => {
-                      
-                        let obj = currentRefs.find(o => o.phone  == element);
-
-                        if(obj == undefined){
-                            //make sure referral is getting for the first time
-
-                            UserModel.findByPhone(element).then((result) => {
-                            if(result != undefined || result != null){
-                                
-                                currentRefs.push({"phone": element, "status": "SIGNED_UP", });
-                                
-                            }
-                            if (index === array.length -1) resolve();
-
-                            });
-                        }else{
-                            if (index === array.length -1) resolve();
-                            
-                        }
-
-                        
+                     
+                    commonEmitter.emit('new_referral_sms_event', element, user_fullname);
+                    resolve('sms_sent');
                     });
-                });
-
-  
-                idVerificationPromise.then(() => {
-
-                    var updateObject = {'referrals': currentRefs}; // {last_name : "smith", age: 44}   
-                 
-                    userPortfolio.update({userId  : userId}, {$set: updateObject},
-                          function (err, result){
-                            
-                            userPortfolio.findOne({userId: userId}, function(err, result){
-                                idArray = [];
-
-                                result.referrals.forEach( (element, index)=> {
-                                    idArray.push(element.phone);    
-                                });
-
-                            resolve(getUserDetailsFromArray('phone', idArray));
-                           }); 
-                          
-                          });
-                });
-
-                      
-          
+            
             });
         }
        
@@ -152,7 +108,7 @@ exports.confirmUserReferrals = (userId, Data, newUserId ) => {
               
         UserModel.findById(userId).then((result) => {
       //  result = result.toJSON();
-        if(result.length == 0)
+      if(result == null || result.length == 0)
         resolve("user_not_exist"); 
         else{
           //  return result;
@@ -219,10 +175,11 @@ exports.confirmUserReferrals = (userId, Data, newUserId ) => {
 };
 
 exports.addToUserPartners = (userId, partnerData ) => {
+    var parentAccess = this;
     return new Promise((resolve, reject) => {
               
         UserModel.findById(userId).then((result) => {
-      //  result = result.toJSON();
+        //  result = result.toJSON();
         if(result == null || result.length == 0)
         resolve("user_not_exist"); 
         else{
@@ -247,7 +204,7 @@ exports.addToUserPartners = (userId, partnerData ) => {
                                 var dateTime =  Date.now();
                                 dateTime = moment(dateTime).format("YYYY-MM-DD HH:mm:ss");
 
-                                currentPartners.push({ "userId": result._id, "phone": element, "status": 0, "createdAt": dateTime});
+                                currentPartners.push({ "userId": result._id, "phone": element, "status": 'PENDING', "createdAt": dateTime});
                                 
                                 //commonEmitter.emit('new_financial_partner_sms_event', element, user_fullname);
 
@@ -277,13 +234,8 @@ exports.addToUserPartners = (userId, partnerData ) => {
                     userPortfolio.update({userId  : userId}, {$set: updateObject},
                           function (err, result){
                             
-                            userPortfolio.findOne({userId: userId}, function(err, result){
-                                idArray = [];
-                                result.partners.forEach( (element, index)=> {
-                                    idArray.push(element.phone);    
-                                });
-                                resolve(getUserDetailsFromArray('phone', idArray));
-                           }); 
+                            resolve(parentAccess.getUserPartners(userId));
+                                   
                           
                           });
                 });
@@ -300,8 +252,9 @@ exports.addToUserPartners = (userId, partnerData ) => {
 
 
 exports.removeFromUserPartners = (userId, partnerData ) => {
+    var parentAccess = this;
     return new Promise((resolve, reject) => {
-              
+        
         UserModel.findById(userId).then((result) => {
       //  result = result.toJSON();
         if( result == null || result.length == 0)
@@ -347,13 +300,8 @@ exports.removeFromUserPartners = (userId, partnerData ) => {
                     userPortfolio.update({userId  : userId}, {$set: updateObject},
                           function (err, result){
                             
-                            userPortfolio.findOne({userId: userId}, function(err, result){
-                                idArray = [];
-                                result.partners.forEach( (element, index)=> {
-                                    idArray.push(element.phone);    
-                                });
-                            resolve(getUserDetailsFromArray('phone', idArray));
-                           }); 
+                            resolve(parentAccess.getUserPartners(userId));
+                         
                           
                           });
                 });
@@ -414,12 +362,45 @@ exports.getUserPartners  = (userId)=>{
     return new Promise ((resolve, reject) =>{
        userPortfolio.findOne({userId: userId}, function(err, result){
            idArray = [];
+           let userPartners = [];
            if(result !=null){
-           result.partners.forEach( (element, index)=> {
+            userPartners = result.partners;
+            userPartners.forEach( (element, index)=> {
                idArray.push(element.phone);    
            });
         }
-       resolve(getUserDetailsFromArray('phone', idArray));
+
+         var arrayPromise = new Promise( (resolve, reject)=>{
+            resolve(getUserDetailsFromArray('phone', idArray));    
+         }
+         );
+         //had to do this iteration again so as to include the partnership status
+         arrayPromise.then((result)=>{
+            var UserDetailsFromArray =  result; 
+           
+            UserDetailsFromArray.forEach( (element, index)=> {    
+              let obj = userPartners.find(o => o.userId  == element.id);
+              let status = ""; 
+              if(obj != undefined ){
+                    status =  obj.status;
+              }
+              UserDetailsFromArray[index] = {
+                "firstName": element.firstName,
+                "lastName": element.lastName,
+                "phone": element.phone,
+                "id": element.id,
+                "status": status
+            };
+
+             });
+
+             resolve(UserDetailsFromArray);
+
+         });
+
+
+       
+      
       }); 
     });
    }
@@ -437,6 +418,62 @@ exports.getUserPartners  = (userId)=>{
       }); 
     });
    }
+
+exports.confirmUserPartnershipStatus = (confirmationData)=> {
+    var subjectUserId = confirmationData.subjectUserId;
+    var requestedPartnerUserId = confirmationData.requestedPartnerUserId;
+    var status = confirmationData.status;
+    var parentAccess = this;
+    return new Promise ( (resolve, reject) => {
+        UserModel.findById(subjectUserId).then((result) => {
+            //  result = result.toJSON();
+            if(result == null || result.length == 0)
+            resolve("subject_user_not_exist"); 
+            else{
+                var user_fullname = result.firstName+ " "+result.lastName;
+    
+                userPortfolio.findOne({userId: subjectUserId}, function(err, portfolio_details) {
+                
+                    var currentPartners = portfolio_details.partners;
+                    
+                        
+                            let obj = currentPartners.find(o => o.userId  == requestedPartnerUserId);
+                           
+                            if(obj != undefined && obj != null){
+                               
+                                currentPartners.splice(currentPartners.indexOf(obj), 1);
+                                
+                                 var dateTime =  Date.now();
+                                 dateTime = moment(dateTime).format("YYYY-MM-DD HH:mm:ss");
+                                 obj.updatedAt  = dateTime;
+                                 obj.status = status;
+
+                                 currentPartners.push(obj);
+
+                                var updateObject = {'partners': currentPartners}; 
+
+                                userPortfolio.update({userId  : subjectUserId}, {$set: updateObject},
+                                    function (err, result){
+
+                                    resolve(parentAccess.getUserPartners(subjectUserId));
+                                            
+                                    });
+                
+                                
+                                 //commonEmitter.emit('financial_partner_confirmation_sms_event', element, user_fullname);
+    
+                                
+    
+                            }else{
+                                resolve("requested_partner_not_exist"); 
+                            }
+  
+                    });
+            }
+           
+        });
+    });
+};
 
 exports.findById = (id) => {
     return userPortfolio.findById(id)

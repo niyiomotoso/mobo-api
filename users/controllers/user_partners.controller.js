@@ -12,6 +12,19 @@ exports.addToUserPartners = (req, res) => {
         });
 
 };
+exports.confirmUserPartnershipStatus = (req, res) => {
+    
+    UserModel.confirmUserPartnershipStatus( req.body)
+        .then((result) => {
+            if(result == "subject_user_not_exist")
+                res.status(200).send(response.failure("invalid subject user id"));
+            else if(result == "requested_partner_not_exist")
+                res.status(200).send(response.failure("invalid requested partner id"));
+            else
+                res.status(200).send(response.success(result, "Partnership Confirmed Successfully"));
+        });
+
+};
 
 exports.removeFromUserPartners = (req, res) => {
 UserModel.removeFromUserPartners(req.params.userId, req.body)

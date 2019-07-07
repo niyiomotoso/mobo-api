@@ -114,10 +114,11 @@ exports.addVouchToLoan = (vouchData)=>{
         const Users = mongoose.model('Users');
 
         Users.findOne ({ _id : partnerUserId}, function( err, result ){
-            if( result == undefined || result == null )
+            if( result == undefined || result == null ){
                 resolve('financial_partner_not_found');
-        });
-
+                
+            }
+       else{
         loanSession.findOne ({_id : loanId}, function( err, loanData ){
             if( loanData == undefined || loanData == null )
               resolve('loan_id_not_found');
@@ -165,7 +166,8 @@ exports.addVouchToLoan = (vouchData)=>{
      
             }
         });
-
+    }
+    });
     });
 
 };

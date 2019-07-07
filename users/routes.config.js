@@ -56,6 +56,10 @@ exports.routesConfig = function (app) {
         UserPartnersController.addToUserPartners
     ]);
 
+    app.post('/partners/confirm_partnership_status', [
+        UserPartnersController.confirmUserPartnershipStatus
+    ]);
+
     app.delete('/partners/:userId/remove_partner', [
         UserPartnersController.removeFromUserPartners
     ]);
