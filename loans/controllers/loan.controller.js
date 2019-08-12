@@ -22,16 +22,16 @@ exports.getUserLoans = (req, res) => {
 exports.updateLoanStatus = (req, res) => {
 
     if(req.params.loanId == undefined   ){
-        res.status(200).send(response.failure( "no loanId set"));
+        res.status(200).send(response.failure("loanid_not_set", "no loanId set"));
     }
 
     LoanModel.updateLoanStatus(req.params.loanId, req.body.status)
         .then((result) => {
             
             if(result == 'loan_id_not_found'){
-                res.status(200).send(response.failure( "loan session not found"));
+                res.status(200).send(response.failure("loan_not_found", "loan session not found"));
             }else if(result == 'invalid_status'){
-                res.status(200).send(response.failure( "invalid status"));
+                res.status(200).send(response.failure("invalid_status", "invalid status"));
             }else{
                 res.status(200).send(response.success(result, "Updated Successfully"));
             }
@@ -42,18 +42,18 @@ exports.updateLoanStatus = (req, res) => {
 
 exports.addVouchToLoan = (req, res) => {
     if(req.body.amount == undefined || req.body.loanId  == undefined  || req.body.partnerUserId  == undefined  ){
-        res.status(200).send(response.failure( "incomplete parameter set"));
+        res.status(200).send(response.failure("incompelete_params", "incomplete parameter set"));
     }
     else{
     LoanModel.addVouchToLoan(req.body)
         .then((result) => {
             if(result == 'loan_id_not_found'){
-                res.status(200).send(response.failure( "loan session not found"));
+                res.status(200).send(response.failure("loan_not_found", "loan session not found"));
             }else if(result == 'financial_partner_not_found'){
-                res.status(200).send(response.failure( "financial partner not found"));
+                res.status(200).send(response.failure("financial_partner_not_found", "financial partner not found"));
             }
             else if(result == 'requested_amount_exceeded'){
-                res.status(200).send(response.failure( "requested amount exceeded by new vouch"));
+                res.status(200).send(response.failure("requested_amount_exceeded", "requested amount exceeded by new vouch"));
             }
             
             else{
@@ -66,13 +66,13 @@ exports.addVouchToLoan = (req, res) => {
 
 exports.makeLoanRequest = (req, res) => {
     if(req.body.userId == undefined || req.body.amountRequested  == undefined   ){
-        res.status(200).send(response.failure( "incomplete parameter set"));
+        res.status(200).send(response.failure("incomplete_params", "incomplete parameter set"));
     }
     else{    
         LoanModel.makeLoanRequest(req.body)
             .then((result) => {
                 if(result == 'limit_exceeded'){
-                    res.status(200).send(response.failure( "loan limit exceeded"));
+                    res.status(200).send(response.failure("limit_exceeded", "loan limit exceeded"));
                 }
                 else{
                 res.status(200).send(response.success(result, "Loaded Successfully"));

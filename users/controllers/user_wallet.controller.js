@@ -20,7 +20,35 @@ exports.list = (req, res) => {
 exports.getWalletBalanceByUserid = (req, res) => {
     UserModel.getUserWalletBalance(req.params.userId)
         .then((result) => {
+            if(result == "user_not_found")
+            res.status(200).send(response.failure("user_not_found","User does not exist"));
+        else{
             res.status(200).send(response.success(result, "Loaded Successfully"));
-        
+        }
+        });
+};
+exports.addToWalletBalanceByUserid = (req, res) => {
+    if(req.body.amount == undefined || req.body.amount == null){
+        res.status(200).send(response.failure("amount_not_set","Amount is not set"));
+    }
+    else{
+    UserModel.addToWalletBalance(req.params.userId, req.body)
+        .then((result) => {
+            if(result == "user_not_found")
+            res.status(200).send(response.failure("user_not_found","User does not exist"));
+        else{
+            res.status(200).send(response.success(result, "Added Successfully"));
+        }
+        });
+    }
+};
+exports.removeFromWalletBalanceByUserid = (req, res) => {
+    UserModel.removeFromWalletBalance(req.params.userId, req.body)
+        .then((result) => {
+            if(result == "user_not_found")
+            res.status(200).send(response.failure("user_not_found","User does not exist"));
+        else{ 
+            res.status(200).send(response.success(result, "Removed Successfully"));
+        }
         });
 };

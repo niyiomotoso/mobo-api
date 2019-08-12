@@ -58,6 +58,14 @@ exports.routesConfig = function (app) {
        // ValidationMiddleware.validJWTNeeded,
         UsersWalletController.getWalletBalanceByUserid
     ]);
+    app.post('/wallet/:userId/add_to_wallet_balance', [
+        // ValidationMiddleware.validJWTNeeded,
+         UsersWalletController.addToWalletBalanceByUserid
+     ]);
+     app.post('/wallet/:userId/deduct_from_wallet_balance', [
+        // ValidationMiddleware.validJWTNeeded,
+         UsersWalletController.removeFromWalletBalanceByUserid
+     ]);
 
     //referrals endpoint
     app.post('/referrals/:userId/add_referral', [

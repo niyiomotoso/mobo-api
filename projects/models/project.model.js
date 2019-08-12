@@ -13,6 +13,7 @@ const Schema = mongoose.Schema;
 
 const projectSessionSchema = new Schema({
     userId: String,
+    projectName:String,
     targetAmount: Number,
     totalContributedAmount: Number,
     targetTime: String,
@@ -76,13 +77,14 @@ exports.makeProjectRequest = (projectData)=> {
     var totalContributedAmount  = 0;
     var targetMode = projectData.targetMode;
     var targetTime = projectData.targetTime;
+    var projectName = project.projectName;
     var status =  'ACTIVE';
     var contributions = [];
     var withdrawals = [];
 
     let session = {"userId": userId, "targetAmount": targetAmount, "targetMode":
         targetMode, "targetTime" : targetTime, "totalContributedAmount": totalContributedAmount,
-        "status": status, "contributions": contributions, "withdrawals": withdrawals
+        "status": status, "contributions": contributions, "withdrawals": withdrawals, "projectName": projectName
      };
   //   var maximumAllowed =  this.getMaximumProject(userId);
 

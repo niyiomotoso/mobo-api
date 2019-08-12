@@ -9,7 +9,7 @@ exports.verifyRefreshBodyField = (req, res, next) => {
         return next();
     } else {
        // return res.status(400).send({error: 'need to pass refresh_token field'});
-       return res.status(400).send(response.failure( "need to pass refresh_token field"));
+       return res.status(200).send(response.failure( "no_refresh_token", "need to pass refresh_token field"));
     }
 };
 
@@ -22,7 +22,7 @@ exports.validRefreshNeeded = (req, res, next) => {
         return next();
     } else {
         //return res.status(400).send({error: 'Invalid refresh token'});
-        return res.status(400).send(response.failure( "Invalid refresh token"));
+        return res.status(200).send(response.failure("invalid_refresh_token", "Invalid refresh token"));
     }
 };
 

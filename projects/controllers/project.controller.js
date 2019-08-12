@@ -22,21 +22,21 @@ exports.getUserProjects = (req, res) => {
 
 exports.addContributionToProject = (req, res) => {
     if(req.body.amount == undefined || req.body.projectId  == undefined  || req.body.contributorUserId  == undefined  ){
-        res.status(200).send(response.failure( "incomplete parameter set"));
+        res.status(200).send(response.failure("incomplete_params" ,"incomplete parameter set"));
     }
     else{
         ProjectModel.addContributionToProject(req.body)
             .then((result) => {
                 if(result == 'project_id_not_found'){
-                    res.status(200).send(response.failure( "Project session not found"));
+                    res.status(200).send(response.failure("project_not_found", "Project session not found"));
                 }else if(result == 'user_not_found'){
-                    res.status(200).send(response.failure( "contributor not found"));
+                    res.status(200).send(response.failure("user_not_found", "contributor not found"));
                 }
                 else if(result == 'requested_amount_exceeded'){
-                    res.status(200).send(response.failure( "requested amount exceeded by new contribution"));
+                    res.status(200).send(response.failure( "requested_amount_exceeded","requested amount exceeded by new contribution"));
                 }
                 else if(result == 'contributor_insufficient_balance'){
-                    res.status(200).send(response.failure( "insufficient balance in contributor account"));
+                    res.status(200).send(response.failure("contributor_insufficient_balance","insufficient balance in contributor account"));
                 }
                 
                 
@@ -51,15 +51,15 @@ exports.addContributionToProject = (req, res) => {
 exports.makeProjectRequest = (req, res) => {
 
     if(req.body.userId == undefined || req.body.targetAmount  == undefined || req.body.targetMode == undefined){
-        res.status(200).send(response.failure( "incomplete parameter set"));
+        res.status(200).send(response.failure("incomplete_params", "incomplete parameter set"));
     }else if(req.body.targetMode == "TIME_TARGET" && req.body.targetTime == undefined){
-        res.status(200).send(response.failure( "targetTime not set for TIME_TARGET mode"));
+        res.status(200).send(response.failure("time_target_not_set", "targetTime not set for TIME_TARGET mode"));
     }
     else{
         ProjectModel.makeProjectRequest(req.body)
             .then((result) => {
                 if(result == 'limit_exceeded'){
-                    res.status(200).send(response.failure( "Project limit exceeded"));
+                    res.status(200).send(response.failure("limit_exceeded", "Project limit exceeded"));
                 }
                 else{
                 res.status(200).send(response.success(result, "Loaded Successfully"));

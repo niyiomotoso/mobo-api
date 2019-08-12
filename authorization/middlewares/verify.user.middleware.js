@@ -15,14 +15,14 @@ exports.hasAuthValidFields = (req, res, next) => {
 
         if (errors.length) {
            // return res.status(400).send({errors: errors.join(',')});
-            return res.status(200).send(response.failure(  errors.join(',')));
+            return res.status(200).send(response.failure( "incompelete_params", errors.join(',')));
 
         } else {
             return next();
         }
     } else {
         //return res.status(400).send({errors: 'Missing phone and password fields'});
-        return res.status(200).send(response.failure( "Missing phone and password fields"));
+        return res.status(200).send(response.failure("incompelete_params", "Missing phone and password fields"));
     }
 };
 
@@ -31,7 +31,9 @@ exports.isPasswordAndUserMatch = (req, res, next) => {
         .then((user)=>{
             if(!user){
                 //res.status(404).send({});
-                return res.status(200).send({errors: ['user does not exist']});
+               // return res.status(200).send({errors: ['user does not exist']});
+                return res.status(200).send(response.failure("invalid_phone_or_pass", "invalid phone or password"));
+
             }else{
                
                 let passwordFields = user.password.split('$');
@@ -45,7 +47,8 @@ exports.isPasswordAndUserMatch = (req, res, next) => {
                     return next();
                 } else {
                     //console.log("hmm", user[0]);
-                    return res.status(200).send({errors: ['Invalid phone or password']});
+                      return res.status(200).send(response.failure("invalid_phone_or_pass", "invalid phone or password"));
+
                 }
             }
         });

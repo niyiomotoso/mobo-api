@@ -4,6 +4,8 @@ const UserModel = require('./users.model');
 var common = require('../../common/generalEventEmitter.js');
 var commonEmitter = common.commonEmitter;
 var moment = require('moment');
+var debitHistory = require("../models/users_debit_history.model")
+var creditHistory = require("../models/users_credit_history.model")
 
 mongoose.connect(config.MONGO_URL);
 const Schema = mongoose.Schema;
@@ -38,10 +40,11 @@ exports.getUserWalletBalance = (userId) => {
         UserModel.findById(userId).then((result) => {
       //  result = result.toJSON();
         if(result == null || result.length == 0)
-        resolve(null);
+        resolve("user_not_found");
         else{
           //  return result;
             userPortfolio.findOne({userId: userId}, function(err, wallet_details) {
+                console.log(wallet_details);
                 if(wallet_details == null ){
                     var walletData = {'userId': userId, 'balance': 0.00, referrals: [], partners: []};
                     const userW = new userPortfolio(walletData);
@@ -61,6 +64,108 @@ exports.getUserWalletBalance = (userId) => {
     });
      
 };
+
+
+exports.removeFromWalletBalance = (userId, trxData) => {
+
+    return new Promise((resolve, reject) => {
+              
+        UserModel.findById(userId).then((result) => {
+      //  result = result.toJSON();
+        if(result == null || result.length == 0)
+        resolve("user_not_found");
+        else{
+          //  return result;
+            userPortfolio.findOne({userId: userId}, function(err, wallet_details) {
+                console.log(wallet_details);
+                if(wallet_details == null ){
+                    var walletData = {'userId': userId, 'balance': 0.00, referrals: [], partners: []};
+                    const userW = new userPortfolio(walletData);
+                     userW.save(function (err, result){
+                         resolve(result)
+                     });
+                     
+                }else{
+                    var totalAfter =  parseFloat(wallet_details.balance) - parseFloat(trxData.amount);
+                    var updateObject = {'balance': totalAfter}; 
+                    userPortfolio.updateOne({ _id  : wallet_details._id}, {$set: updateObject},
+                            function (err, portfolioResult){
+                                if(portfolioResult){
+                                    var transaction =  {"balanceAfter": totalAfter,
+                                                        "balanceBefore": wallet_details.balance,
+                                                        "amount": trxData.amount,
+                                                        "fromUserId" : trxData.fromUserId,
+                                                        "fromName" : trxData.fromName,
+                                                        "toUserId" : trxData.toUserId,
+                                                        "toName" : trxData.toName,
+                                                        "transactionType" : trxData.transactionType,
+                                                        "transactionStatus" : "DONE" };
+                                      
+                                    resolve  (debitHistory.addNewTransaction(transaction));
+                                    
+                            }            
+                        });
+             }
+                
+            });
+        }
+       
+    });
+
+    });
+     
+};
+
+exports.addToWalletBalance = (userId, trxData) => {
+
+    return new Promise((resolve, reject) => {
+              
+        UserModel.findById(userId).then((result) => {
+      //  result = result.toJSON();
+        if(result == null || result.length == 0)
+        resolve("user_not_found");
+        else{
+          //  return result;
+            userPortfolio.findOne({userId: userId}, function(err, wallet_details) {
+                console.log(wallet_details);
+                if(wallet_details == null ){
+                    var walletData = {'userId': userId, 'balance': 0.00, referrals: [], partners: []};
+                    const userW = new userPortfolio(walletData);
+                     userW.save(function (err, result){
+                         resolve(result)
+                     });
+                     
+                }else{
+                    var totalAfter =  parseFloat(wallet_details.balance) + parseFloat(trxData.amount);
+                    var updateObject = {'balance': totalAfter}; 
+                    userPortfolio.updateOne({ _id  : wallet_details._id}, {$set: updateObject},
+                            function (err, portfolioResult){
+                                if(portfolioResult){
+                                    var transaction =  {"balanceAfter": totalAfter,
+                                                        "balanceBefore": wallet_details.balance,
+                                                        "amount": trxData.amount,
+                                                        "fromUserId" : trxData.fromUserId,
+                                                        "fromName" : trxData.fromName,
+                                                        "toUserId" : trxData.toUserId,
+                                                        "toName" : trxData.toName,
+                                                        "transactionType" : trxData.transactionType,
+                                                        "transactionStatus" : "DONE" };
+                                      
+                                    resolve  (creditHistory.addNewTransaction(transaction));
+                                    
+                            }            
+                        });
+             }
+                
+            });
+        }
+       
+    });
+
+    });
+     
+};
+
 
 exports.createNewAccount = (userId) =>{
         return new Promise  ((resolve, reject) => {

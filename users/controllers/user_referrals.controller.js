@@ -6,7 +6,7 @@ exports.addToUserReferrals = (req, res) => {
     UserModel.addToUserReferrals(req.params.userId, req.body)
         .then((result) => {
             if(result == "user_not_exist")
-                res.status(200).send(response.failure("User does not exist"));
+                res.status(200).send(response.failure("user_not_found","User does not exist"));
             else
                 res.status(200).send(response.success(result, "Referral(s) messages sent"));
         });

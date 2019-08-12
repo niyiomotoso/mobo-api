@@ -12,10 +12,10 @@ exports.insert = (req, res) => {
             //res.status(201).send({id: result._id});
             console.log("controller", result);
             if(result == "phone_exist"){
-                res.status(200).send(response.failure( "phone number already exist"));
+                res.status(200).send(response.failure("phone_exist", "phone number already exist"));
            
             }else if(result == "email_exist"){
-                res.status(200).send(response.failure( "email already exist"));
+                res.status(200).send(response.failure("email_exist", "email already exist"));
            
             }else{
                 res.status(200).send(response.success({id: result.userId}, "User Added Successfully"));
@@ -59,7 +59,7 @@ exports.patchById = (req, res) => {
         .then((result) => {
             //res.status(200).send({result});
             if(result == "user_not_found"){
-                res.status(200).send(response.failure( "user not found"));
+                res.status(200).send(response.failure("user_not_found", "user not found"));
            
             }else{
             res.status(200).send(response.success(result, "Edited Successfully"));
@@ -83,7 +83,7 @@ exports.uploadUserProfilePic = (req, res) => {
    .then((result) => {
        //res.status(200).send({result});
     if(result == "user_not_found"){
-        res.status(200).send(response.failure( "user not found"));
+        res.status(200).send(response.failure("user_not_found", "user not found"));
    
     }else{
        res.status(200).send(response.success(result, "Pic Uploaded Successfully"));
