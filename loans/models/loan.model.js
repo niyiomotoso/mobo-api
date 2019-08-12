@@ -4,7 +4,6 @@ const mongoose = require('mongoose');
 const EventEmitter = require('events');
 var common = require('../../common/generalEventEmitter.js');
 var commonEmitter = common.commonEmitter;
-var smsEventListener = require('../../event_listeners/smsEventListener.js');
 var moment = require('moment');
 const UserPortfolioModel = require('../../users/models/users_portfolio.model');
 const UserModel = require('../../users/models/users.model');
@@ -87,6 +86,8 @@ exports.makeLoanRequest = (loanData)=> {
     return new Promise ( ( resolve, reject) => {
         loan.save(
             function(err, savedSession){
+
+                commonEmitter.emit('new_loan_request_sms_event', userId, amountRequested);
                 resolve(savedSession);
             }
         );
@@ -170,6 +171,30 @@ exports.addVouchToLoan = (vouchData)=>{
     });
     });
 
+};
+
+exports.cancelLoan = (loanId)=>{
+    return new Promise( (resolve, reject)=> {
+       
+        loanSession.findOne ({_id : loanId}, function( err, loanData ){
+            if( loanData == undefined || loanData == null )
+              resolve('loan_id_not_found');
+            else{
+                  var updateObject = {'status': 'CANCELED'}; 
+                loanSession.update({ _id  : loanId}, {$set: updateObject},
+                    function (err, result){
+                        if(result){     
+                            loanSession.findOne({_id : loanId}, function(err, result){     
+                            resolve(result);
+                        }); 
+                    }
+                            
+                    });
+
+            }
+    });
+  
+});
 };
 
 

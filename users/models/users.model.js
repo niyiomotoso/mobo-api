@@ -11,9 +11,8 @@ const userSchema = new Schema({
     email: String,
     password: String,
     phone: String,
-    permissionLevel: Number
-   
-    
+    permissionLevel: Number,
+    profilePicPath: String
 }, {timestamps: true});
 
 userSchema.virtual('id').get(function () {
@@ -154,6 +153,31 @@ exports.removeById = (userId) => {
         });
     });
 };
+
+
+exports.uploadUserProfilePic = (userId, filePath) => {
+    // userData.referralCode  = IDGenerate();
+     if(userId != undefined){
+     return new Promise((resolve, reject )=>{
+          User.findOne({_id: userId}, function(err, user){
+          console.log(userId, user);
+         if(user == null ){
+             resolve("user_not_found");         
+         }
+         else{
+            user.profilePicPath = filePath;
+            user.save(function (err, updatedUser) {
+                if (err) return reject(err);
+                resolve(updatedUser);
+            });
+        
+             }
+       
+     });
+     });
+ }
+ };
+
 
 function IDGenerate() {
     var text = "";

@@ -19,8 +19,30 @@ exports.getUserLoans = (req, res) => {
         });
 };
 
+exports.cancelLoan = (req, res) => {
+
+    if(req.params.loanId == undefined   ){
+        res.status(200).send(response.failure( "no loanId set"));
+    }
+
+    LoanModel.cancelLoan(req.params.loanId)
+        .then((result) => {
+            
+            if(result == 'loan_id_not_found'){
+                res.status(200).send(response.failure( "loan session not found"));
+            }else{
+                res.status(200).send(response.success(result, "Loaded Successfully"));
+            }
+           
+        });
+};
+
 
 exports.addVouchToLoan = (req, res) => {
+    if(req.body.amount == undefined || req.body.loanId  == undefined  || req.body.partnerUserId  == undefined  ){
+        res.status(200).send(response.failure( "incomplete parameter set"));
+    }
+    else{
     LoanModel.addVouchToLoan(req.body)
         .then((result) => {
             if(result == 'loan_id_not_found'){
@@ -37,17 +59,23 @@ exports.addVouchToLoan = (req, res) => {
         }
         
         });
+    }
 };
 
 exports.makeLoanRequest = (req, res) => {
-    LoanModel.makeLoanRequest(req.body)
-        .then((result) => {
-            if(result == 'limit_exceeded'){
-                res.status(200).send(response.failure( "loan limit exceeded"));
+    if(req.body.userId == undefined || req.body.amountRequested  == undefined   ){
+        res.status(200).send(response.failure( "incomplete parameter set"));
+    }
+    else{    
+        LoanModel.makeLoanRequest(req.body)
+            .then((result) => {
+                if(result == 'limit_exceeded'){
+                    res.status(200).send(response.failure( "loan limit exceeded"));
+                }
+                else{
+                res.status(200).send(response.success(result, "Loaded Successfully"));
             }
-            else{
-            res.status(200).send(response.success(result, "Loaded Successfully"));
-        }
-        
-        });
+            
+            });
+    }
 };

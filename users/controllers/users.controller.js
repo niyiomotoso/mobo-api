@@ -54,6 +54,7 @@ exports.patchById = (req, res) => {
         req.body.password = salt + "$" + hash;
     }
 
+
     UserModel.patchUser(req.params.userId, req.body)
         .then((result) => {
             //res.status(200).send({result});
@@ -70,4 +71,19 @@ exports.removeById = (req, res) => {
             res.status(200).send(response.success(result, "Deleted Successfully"));
         
         });
+};
+
+exports.uploadUserProfilePic = (req, res) => {
+   
+   UserModel.uploadUserProfilePic(req.params.userId, req.file.filename)
+   .then((result) => {
+       //res.status(200).send({result});
+    if(result == "user_not_found"){
+        res.status(200).send(response.failure( "user not found"));
+   
+    }else{
+       res.status(200).send(response.success(result, "Pic Uploaded Successfully"));
+    }
+   });
+
 };

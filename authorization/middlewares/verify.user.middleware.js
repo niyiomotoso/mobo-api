@@ -15,14 +15,14 @@ exports.hasAuthValidFields = (req, res, next) => {
 
         if (errors.length) {
            // return res.status(400).send({errors: errors.join(',')});
-            return res.status(400).send(response.failure(  errors.join(',')));
+            return res.status(200).send(response.failure(  errors.join(',')));
 
         } else {
             return next();
         }
     } else {
         //return res.status(400).send({errors: 'Missing phone and password fields'});
-        return res.status(400).send(response.failure( "Missing phone and password fields"));
+        return res.status(200).send(response.failure( "Missing phone and password fields"));
     }
 };
 
@@ -50,7 +50,7 @@ exports.isPasswordAndUserMatch = (req, res, next) => {
                     return next();
                 } else {
                     //console.log("hmm", user[0]);
-                    return res.status(400).send({errors: ['Invalid phone or password']});
+                    return res.status(200).send({errors: ['Invalid phone or password']});
                 }
             }
         });

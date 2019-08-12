@@ -31,7 +31,7 @@ exports.list = (req, res) => {
 };
 
 exports.getByUserId = (req, res) => {
-    AssessQuestionModel.findById(req.params.userId)
+    AssessQuestionModel.findByUserId(req.params.userId)
         .then((result) => {
           //  res.status(200).send(result);
             res.status(200).send(response.success(result, "Loaded Successfully"));

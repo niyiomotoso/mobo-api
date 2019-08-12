@@ -1,5 +1,5 @@
 const config = require('./common/config/env.config.js');
-const MongoClient = require('mongodb').MongoClient
+const path = require('path');
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
@@ -9,7 +9,7 @@ const AuthorizationRouter = require('./authorization/routes.config');
 const UsersRouter = require('./users/routes.config');
 const AssessmentsRouter = require('./assessment_questions/routes.config');
 const LoanRouter = require('./loans/routes.config');
-// const PartnersRouter = require('./partners/routes.config');
+ const ProjectRouter = require('./projects/routes.config');
 const options = {
     useNewUrlParser: true, 
     reconnectTries: 60, 
@@ -32,11 +32,13 @@ const http = require('http').Server(app)
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }))
 // app.use('/api', routes)
+app.use('*/images',express.static('public/uploads'));
 
 AuthorizationRouter.routesConfig(app);
 UsersRouter.routesConfig(app);
 AssessmentsRouter.routesConfig(app);
 LoanRouter.routesConfig(app);
+ProjectRouter.routesConfig(app);
 
 // MongoClient.connect(url, options, (err, database) => {
 //     if (err) {

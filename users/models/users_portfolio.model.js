@@ -1,10 +1,8 @@
 const config = require('../../common/config/env.config.js');
 const mongoose = require('mongoose');
 const UserModel = require('./users.model');
-const EventEmitter = require('events');
 var common = require('../../common/generalEventEmitter.js');
 var commonEmitter = common.commonEmitter;
-var smsEventListener = require('../../event_listeners/smsEventListener.js');
 var moment = require('moment');
 
 mongoose.connect(config.MONGO_URL);

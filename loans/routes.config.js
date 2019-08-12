@@ -14,6 +14,10 @@ exports.routesConfig = function (app) {
     app.get('/loans/:userId/get_user_loans', [ 
        LoanController.getUserLoans
     ]);
+
+    app.patch('/loans/:loanId/cancel_loan', [ 
+        LoanController.cancelLoan
+     ]);
     
     app.get('/loans/:userId/get_maximum_amount', [
       

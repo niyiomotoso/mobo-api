@@ -2,13 +2,24 @@ const UsersController = require('./controllers/users.controller');
 const UsersWalletController = require('./controllers/user_wallet.controller');
 const UserReferralsController = require('./controllers/user_referrals.controller');
 const UserPartnersController = require('./controllers/user_partners.controller');
-const PermissionMiddleware = require('../common/middlewares/auth.permission.middleware');
-const ValidationMiddleware = require('../common/middlewares/auth.validation.middleware');
 const config = require('../common/config/env.config');
+const multer = require('multer');
+const path = require('path');
+const crypto = require('crypto');
 
-const ADMIN = config.permissionLevels.ADMIN;
-const PAID = config.permissionLevels.PAID_USER;
-const FREE = config.permissionLevels.NORMAL_USER;
+var storage = multer.diskStorage({
+    destination: path.join(__dirname, '../public/uploads'),
+    filename: function (req, file, cb) {
+    crypto.randomBytes(10, function(err, buffer) {
+        cb(null, new Date().getTime()+buffer.toString('hex') + path.extname(file.originalname));
+    });
+}
+});
+
+const upload = multer({
+    storage: storage,
+}
+);
 
 exports.routesConfig = function (app) {
     app.post('/users', [
@@ -29,6 +40,13 @@ exports.routesConfig = function (app) {
        
         UsersController.patchById
     ]);
+
+    app.post('/users/profile_pic/:userId',upload.single('avatar'), [
+       
+        UsersController.uploadUserProfilePic
+    ]);
+
+
     app.delete('/users/:userId', [
         // ValidationMiddleware.validJWTNeeded,
         // PermissionMiddleware.minimumPermissionLevelRequired(ADMIN),

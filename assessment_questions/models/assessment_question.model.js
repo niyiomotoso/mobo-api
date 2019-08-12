@@ -26,17 +26,14 @@ const Assessment = mongoose.model('Assessments', assessmentSchema);
 
 
 
-exports.findById = (id) => {
-    return Assessment.find({"userId": id})
+exports.findByUserId = (id) => {
+    return Assessment.findOne({"userId": id})
         .then((result) => {
-            // result = result.toJSON();
-
-            //  delete result[0]._id;
-            //  delete result[0].__v;
+          
             if(result == undefined  || result == null)
                 return {};
             else
-            return result[0];
+            return result;
         });
 };
 

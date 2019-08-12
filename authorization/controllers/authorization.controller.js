@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const uuid = require('node-uuid');
 const response = require('../../common/jsonResponse');
 const UserPortfolioModel = require('../../users/models/users_portfolio.model');
+const UserAssessment = require('../../assessment_questions/models/assessment_question.model');
 
 exports.login = (req, res) => {
     try {
@@ -24,11 +25,13 @@ exports.login = (req, res) => {
                 
                 UserPortfolioModel.getUserWalletBalance(req.body.userId)
                 .then((balance) => {
-                    
-                     res.status(200).send(response.success({accessToken: token, refreshToken: refresh_token, 
-                    balance: balance, partners: user_partners, referrals: user_referrals, bio: req.body}, "Login Success"));
-       
-                
+                    UserAssessment.findByUserId(req.body.userId)
+                        .then((assessment) => {
+                            
+                            res.status(200).send(response.success({accessToken: token, refreshToken: refresh_token, 
+                            balance: balance, partners: user_partners, referrals: user_referrals, bio: req.body, assessment_question: assessment}, "Login Success"));
+            
+                        });
                 });
             
             });
