@@ -58,8 +58,12 @@ exports.patchById = (req, res) => {
     UserModel.patchUser(req.params.userId, req.body)
         .then((result) => {
             //res.status(200).send({result});
+            if(result == "user_not_found"){
+                res.status(200).send(response.failure( "user not found"));
+           
+            }else{
             res.status(200).send(response.success(result, "Edited Successfully"));
-        
+            }
         });
 
 };

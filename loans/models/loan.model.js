@@ -173,15 +173,16 @@ exports.addVouchToLoan = (vouchData)=>{
 
 };
 
-exports.cancelLoan = (loanId)=>{
+exports.updateLoanStatus = (loanId, status)=>{
     return new Promise( (resolve, reject)=> {
        
         loanSession.findOne ({_id : loanId}, function( err, loanData ){
             if( loanData == undefined || loanData == null )
               resolve('loan_id_not_found');
-            else{
-                  var updateObject = {'status': 'CANCELED'}; 
-                loanSession.update({ _id  : loanId}, {$set: updateObject},
+            else if(status == "ACCEPTED" || status == "CANCELED" ){
+           
+                var updateObject = {'status': status};  
+                loanSession.updateOne({ _id  : loanId}, {$set: updateObject},
                     function (err, result){
                         if(result){     
                             loanSession.findOne({_id : loanId}, function(err, result){     
@@ -192,6 +193,10 @@ exports.cancelLoan = (loanId)=>{
                     });
 
             }
+            else{
+            resolve('invalid_status');
+        }
+      
     });
   
 });

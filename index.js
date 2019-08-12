@@ -32,7 +32,7 @@ const http = require('http').Server(app)
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }))
 // app.use('/api', routes)
-app.use('*/images',express.static('public/uploads'));
+app.use('*/dp',express.static('public/profile_pictures'));
 
 AuthorizationRouter.routesConfig(app);
 UsersRouter.routesConfig(app);

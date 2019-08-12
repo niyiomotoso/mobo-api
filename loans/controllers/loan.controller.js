@@ -19,19 +19,21 @@ exports.getUserLoans = (req, res) => {
         });
 };
 
-exports.cancelLoan = (req, res) => {
+exports.updateLoanStatus = (req, res) => {
 
     if(req.params.loanId == undefined   ){
         res.status(200).send(response.failure( "no loanId set"));
     }
 
-    LoanModel.cancelLoan(req.params.loanId)
+    LoanModel.updateLoanStatus(req.params.loanId, req.body.status)
         .then((result) => {
             
             if(result == 'loan_id_not_found'){
                 res.status(200).send(response.failure( "loan session not found"));
+            }else if(result == 'invalid_status'){
+                res.status(200).send(response.failure( "invalid status"));
             }else{
-                res.status(200).send(response.success(result, "Loaded Successfully"));
+                res.status(200).send(response.success(result, "Updated Successfully"));
             }
            
         });

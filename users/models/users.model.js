@@ -12,7 +12,13 @@ const userSchema = new Schema({
     password: String,
     phone: String,
     permissionLevel: Number,
-    profilePicPath: String
+    profilePicPath: String,
+    accountNumber: String,
+    AccountName: String,
+    bankName: String,
+    gender: String,
+    dateOfBirth: String,
+
 }, {timestamps: true});
 
 userSchema.virtual('id').get(function () {
@@ -128,7 +134,10 @@ exports.list = (perPage, page) => {
 exports.patchUser = (id, userData) => {
     return new Promise((resolve, reject) => {
         User.findById(id, function (err, user) {
-            if (err) reject(err);
+            if(user == null ){
+                resolve("user_not_found");         
+            }
+            else{
             userData.updated_at = new Date();
             for (let i in userData) {
                 user[i] = userData[i];
@@ -137,7 +146,9 @@ exports.patchUser = (id, userData) => {
                 if (err) return reject(err);
                 resolve(updatedUser);
             });
+         }
         });
+    
     })
 
 };
@@ -160,7 +171,6 @@ exports.uploadUserProfilePic = (userId, filePath) => {
      if(userId != undefined){
      return new Promise((resolve, reject )=>{
           User.findOne({_id: userId}, function(err, user){
-          console.log(userId, user);
          if(user == null ){
              resolve("user_not_found");         
          }
@@ -168,6 +178,8 @@ exports.uploadUserProfilePic = (userId, filePath) => {
             user.profilePicPath = filePath;
             user.save(function (err, updatedUser) {
                 if (err) return reject(err);
+                updatedUser = updatedUseruser.toJSON();
+                delete updatedUser.password;
                 resolve(updatedUser);
             });
         

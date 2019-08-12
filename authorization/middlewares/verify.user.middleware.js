@@ -27,26 +27,21 @@ exports.hasAuthValidFields = (req, res, next) => {
 };
 
 exports.isPasswordAndUserMatch = (req, res, next) => {
-    UserModel.findAllByPhone(req.body.phone)
+    UserModel.findByPhone(req.body.phone)
         .then((user)=>{
-            if(!user[0]){
+            if(!user){
                 //res.status(404).send({});
-                return res.status(400).send({errors: ['user does not exist']});
+                return res.status(200).send({errors: ['user does not exist']});
             }else{
                
-                let passwordFields = user[0].password.split('$');
+                let passwordFields = user.password.split('$');
                 let salt = passwordFields[0];
                 let hash = crypto.createHmac('sha512', salt).update(req.body.password).digest("base64");
                 if (hash === passwordFields[1]) {
-                    req.body = {
-                        userId: user[0]._id,
-                        email: user[0].email,
-                        phone: user[0].phone,
-                        
-                        firstName: user[0].firstName,
-                        lastName: user[0].lastName,
-                    };
-                    console.log(user[0]);
+                    user = user.toJSON();
+                    user.userId = user._id;
+                    delete user.password;
+                    req.body = user;
                     return next();
                 } else {
                     //console.log("hmm", user[0]);
