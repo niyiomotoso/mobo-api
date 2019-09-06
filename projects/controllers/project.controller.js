@@ -55,6 +55,9 @@ exports.makeProjectRequest = (req, res) => {
     }else if(req.body.targetMode == "TIME_TARGET" && req.body.targetTime == undefined){
         res.status(200).send(response.failure("time_target_not_set", "targetTime not set for TIME_TARGET mode"));
     }
+    else if(req.body.targetMode != "TIME_TARGET"  && req.body.targetMode  != "MONEY_TARGET" && req.body.targetMode  != "ANYTIME"){
+        res.status(200).send(response.failure("invalid_target_mode", "invalid target mode"));
+    }
     else{
         ProjectModel.makeProjectRequest(req.body)
             .then((result) => {

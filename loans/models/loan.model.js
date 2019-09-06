@@ -53,7 +53,7 @@ exports.getMaximumLoan = (userId) => {
                 totalAvailable = totalAvailable + parseFloat(element.balance);
 
                 });
-
+                console.log( "console.log(totalAvailable);", totalAvailable);
                 resolve(totalAvailable);
             });
         }
@@ -77,34 +77,62 @@ exports.makeLoanRequest = (loanData)=> {
         totalVouchAmount, "userPaybackTime" : userPaybackTime, "systemPaybackTime": systemPaybackTime,
         "status": status, "vouches": vouches, "payBacks": payBacks
      };
-     var maximumAllowed =  this.getMaximumLoan(userId);
 
-    const loan = new loanSession(session);
-    if( parseFloat(maximumAllowed) < parseFloat(amountRequested) ){
-        return 'limit_exceeded';
-    }else{
-    return new Promise ( ( resolve, reject) => {
-        loan.save(
-            function(err, savedSession){
+   
+       return this.getMaximumLoan(userId).then( (maximumAllowed)=>{
+            console.log("maximumAllowed", maximumAllowed);
+            const loan = new loanSession(session);
+            console.log(parseFloat(maximumAllowed), parseFloat(amountRequested) );
+        
+            if( parseFloat(maximumAllowed) < parseFloat(amountRequested) ){
+                return 'limit_exceeded';
+            }else {
+                return new Promise( (resolve, reject) => {
+                    loanSession.find ({"status" : "ACTIVE"}, function( err, result ){
+                        if(result.length >= 1){
+                            resolve("one_active_loan");
+                        }else{
+                            loan.save(
+                                function(err, savedSession){     
+                                    commonEmitter.emit('new_loan_request_sms_event', userId, amountRequested);
+                                    resolve(savedSession);
+                                }
+                                )
+                        }
+                    });
 
-                commonEmitter.emit('new_loan_request_sms_event', userId, amountRequested);
-                resolve(savedSession);
-            }
-        );
+                   
+                    });
         }
-    )
-}
+
+     });
+
 };
 
 
-exports.getUserLoans = (userId)=>{
+exports.getUserLoans = (req)=>{
+    console.log(req);
+   var userId = req.params.userId;
+   var status = req.query.status;
+
+   if(status != undefined){
     return new Promise( (resolve, reject)=> {
-        loanSession.find ({"userId" : userId}, function( err, result ){
+     
+        loanSession.find ({"userId" : userId, "status": status}, function( err, result ){
             resolve(result);
         });
     });
 
+   }else{
+        return new Promise( (resolve, reject)=> {
+         
+            loanSession.find ({"userId" : userId}, function( err, result ){
+                resolve(result);
+            });
+        });
+    }
 };
+
 
 exports.addVouchToLoan = (vouchData)=>{
     return new Promise( (resolve, reject)=> {

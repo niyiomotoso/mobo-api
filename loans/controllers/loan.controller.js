@@ -12,11 +12,14 @@ exports.getMaximumLoan = (req, res) => {
 };
 
 exports.getUserLoans = (req, res) => {
-    LoanModel.getUserLoans(req.params.userId)
+    LoanModel.getUserLoans(req)
         .then((result) => {
-            res.status(200).send(response.success(result, "Loaded Successfully"));
+            LoanModel.getMaximumLoan(req.params.userId)
+        .then((result_2) => {
+            res.status(200).send(response.success({"maximumLoanAmount": result_2, "loans": result }, "Loaded Successfully"));
         
         });
+    });
 };
 
 exports.updateLoanStatus = (req, res) => {
@@ -71,7 +74,11 @@ exports.makeLoanRequest = (req, res) => {
     else{    
         LoanModel.makeLoanRequest(req.body)
             .then((result) => {
-                if(result == 'limit_exceeded'){
+                
+                if(result == 'one_active_loan'){
+                    res.status(200).send(response.failure("one_active_loan", "You still have an active loan"));
+                }
+                else if(result == 'limit_exceeded'){
                     res.status(200).send(response.failure("limit_exceeded", "loan limit exceeded"));
                 }
                 else{

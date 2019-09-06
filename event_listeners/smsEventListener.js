@@ -48,7 +48,7 @@ commonEmitter.on('new_financial_partner_sms_event', function( phone, sender_full
         UserModel.findById(userId).then((result) => {
             sender_fullname = result.firstName+ " "+result.lastName;
       
-            UserPortfolioModel.getUserPartners.then (partners => {
+            UserPortfolioModel.getUserPartners(userId).then (partners => {
             partners.forEach(partner => {
                 partner_name = partner.firstName;
                 partner_phone = partner.phone;

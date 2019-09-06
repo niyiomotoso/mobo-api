@@ -1,6 +1,7 @@
 const UserModel = require('../../users/models/users.model');
 const crypto = require('crypto');
 const response = require('../../common/jsonResponse');
+const config = require('../../common/config/env.config.js');
 
 exports.hasAuthValidFields = (req, res, next) => {
     let errors = [];
@@ -42,6 +43,7 @@ exports.isPasswordAndUserMatch = (req, res, next) => {
                 if (hash === passwordFields[1]) {
                     user = user.toJSON();
                     user.userId = user._id;
+                    user.profilePicPath = config.profile_pic_path+user.profilePicPath;
                     delete user.password;
                     req.body = user;
                     return next();
