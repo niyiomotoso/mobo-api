@@ -77,7 +77,7 @@ exports.makeProjectRequest = (projectData)=> {
     var totalContributedAmount  = 0;
     var targetMode = projectData.targetMode;
     var targetTime = projectData.targetTime;
-    var projectName = project.projectName;
+    var projectName = projectData.projectName;
     var status =  'ACTIVE';
     var contributions = [];
     var withdrawals = [];

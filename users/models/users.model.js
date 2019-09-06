@@ -178,7 +178,7 @@ exports.uploadUserProfilePic = (userId, filePath) => {
             user.profilePicPath = filePath;
             user.save(function (err, updatedUser) {
                 if (err) return reject(err);
-                updatedUser = updatedUseruser.toJSON();
+                updatedUser = updatedUser.toJSON();
                 delete updatedUser.password;
                 resolve(updatedUser);
             });
