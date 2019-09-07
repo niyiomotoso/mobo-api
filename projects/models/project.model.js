@@ -125,7 +125,7 @@ exports.addContributionToProject = (projectData)=>{
             if( portfolio == undefined || portfolio == null ){
                 resolve('user_not_found'); 
             }
-            else if( float(portfolio.balance) < float(amount) ){
+            else if( parseFloat(portfolio.balance) < parseFloat(amount) ){
                 resolve('contributor_insufficient_balance'); 
             }
        else{
@@ -167,7 +167,7 @@ exports.addContributionToProject = (projectData)=>{
                     function (err, projectSessionresult){
                         if(projectSessionresult){     
                             //deduct from contributor's balance
-                            var newBalance = float(portfolio.balance) - float(amount);
+                            var newBalance = parseFloat(portfolio.balance) - parseFloat(amount);
                             var updateObject = {'balance': newBalance}; 
                             UserPortfolio.update({ userId  : userId}, {$set: updateObject},
                                 function (err, portfolioUpdateResult){
