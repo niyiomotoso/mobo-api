@@ -25,6 +25,9 @@ exports.routesConfig = function (app) {
     app.post('/users', [
         UsersController.insert
     ]);
+    app.post('/users/verifyPhone', [
+        UsersController.verifyPhone
+    ]);
     app.get('/users', [
         // ValidationMiddleware.validJWTNeeded,
         // PermissionMiddleware.minimumPermissionLevelRequired(PAID),

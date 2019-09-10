@@ -1,6 +1,8 @@
 const config = require('../../common/config/env.config.js');
 const mongoose = require('mongoose');
 const UserPortfolioModel = require('./users_portfolio.model');
+var common = require('../../common/generalEventEmitter.js');
+var commonEmitter = common.commonEmitter;
 
 mongoose.connect(config.MONGO_URL);
 const Schema = mongoose.Schema;
@@ -18,6 +20,8 @@ const userSchema = new Schema({
     bankName: String,
     gender: String,
     dateOfBirth: String,
+    activationCode:String,
+    status: String,
 
 }, {timestamps: true});
 
@@ -83,12 +87,15 @@ exports.createUser = (userData) => {
                     resolve("email_exist");         
                 }
                 else{ 
-
+                    userData.status = "UNVERIFIED";
+                    userData.activationCode =  generateVerficationCode();
                     const user = new User(userData);
                     user.save(
                         function (err, created_user){
                             var newUserId = created_user._id;
                             let user_portfolio =  UserPortfolioModel.createNewAccount(newUserId);  
+
+                            commonEmitter.emit('new_user_for_verification', userData.phone, userData.activationCode);
 
                             if(userData.referralPhone != undefined || userData.referralPhone != null){
                                 referralPhone = userData.referralPhone;
@@ -149,7 +156,7 @@ exports.patchUser = (id, userData) => {
          }
         });
     
-    })
+    });
 
 };
 
@@ -192,6 +199,29 @@ exports.uploadUserProfilePic = (userId, filePath) => {
  };
 
 
+
+exports.verifyPhone = (phoneNumber, activationCode) => {
+    
+    return new Promise((resolve, reject) => {
+        User.findOne({'phone': phoneNumber, 'activationCode': activationCode}, function(err, user){
+            if(user == null ){
+                resolve("invalid_verification_details");         
+            }
+            else{
+                user.status = "VERIFIED";
+            user.save(function (err, updatedUser) {
+                if (err) return reject(err);
+                delete updatedUser.password;
+                resolve(updatedUser);
+            });
+         }
+        });
+    
+    });
+   
+ };
+
+
 function IDGenerate() {
     var text = "";
    
@@ -201,5 +231,15 @@ function IDGenerate() {
     }
 
     return text;
+}
+function generateVerficationCode(){
+    var text = "";
+    var d = new Date();
+    var possible = String(d.getTime());
+    for (var i = 0; i < 6; i++) {
+        text += possible.charAt(Math.floor(Math.random() * possible.length));         
+    }
+return text;
+
 }
 

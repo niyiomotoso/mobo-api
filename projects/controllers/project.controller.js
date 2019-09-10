@@ -12,7 +12,7 @@ const response = require('../../common/jsonResponse');
 // };
 
 exports.getUserProjects = (req, res) => {
-    ProjectModel.getUserProjects(req.params.userId)
+    ProjectModel.getUserProjects(req)
         .then((result) => {
             res.status(200).send(response.success(result, "Loaded Successfully"));
         
@@ -49,7 +49,10 @@ exports.addContributionToProject = (req, res) => {
 };
 
 exports.makeProjectRequest = (req, res) => {
-
+    console.log(req.body);
+    console.log(req.file);
+    console.log(req.body.description);
+    console.log(req.file.filename);
     if(req.body.userId == undefined || req.body.targetAmount  == undefined || req.body.targetMode == undefined){
         res.status(200).send(response.failure("incomplete_params", "incomplete parameter set"));
     }else if(req.body.targetMode == "TIME_TARGET" && req.body.targetTime == undefined){
@@ -58,7 +61,20 @@ exports.makeProjectRequest = (req, res) => {
     else if(req.body.targetMode != "TIME_TARGET"  && req.body.targetMode  != "MONEY_TARGET" && req.body.targetMode  != "ANYTIME"){
         res.status(200).send(response.failure("invalid_target_mode", "invalid target mode"));
     }
+    else if(req.body.projectType == undefined  ){
+        res.status(200).send(response.failure("project_type_not_set", "project type not set"));
+    }
+    else if(req.body.projectType  != "PRIVATE" && req.body.projectType  != "PUBLIC"){
+        res.status(200).send(response.failure("invalid_project_type", "invalid project type"));
+    }
     else{
+        if(req.body.projectType  == "PUBLIC"){
+            if( req.file == undefined || req.file.filename == undefined  || req.body.description == undefined ){
+                res.status(200).send(response.failure("public_project_params_not_set", "cover image and description must be set"));
+            }else{
+                req.body.coverImage = req.file.filename;
+            }
+        }
         ProjectModel.makeProjectRequest(req.body)
             .then((result) => {
                 if(result == 'limit_exceeded'){

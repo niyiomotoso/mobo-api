@@ -24,6 +24,26 @@ commonEmitter.on('new_financial_partner_sms_event', function( phone, sender_full
   
    });
 
+   commonEmitter.on('new_user_for_verification', function( phone, verificationCode) {
+    setImmediate(() => {
+       
+        var sender = 'LEAP APP';
+      
+        var message = 'Please enter the verification Code '+verificationCode+' to complete your profile setup now';
+        axios.get('http://api.ebulksms.com:8080/sendsms?username=scholar4real05@yahoo.com&apikey=2e91a0faf31ae5bef7547a941b0e38cc0e6fe837&sender='+sender+'&messagetext='+message+'&flash=0&recipients='+phone)
+            .then(response => {
+                console.log(response.data);
+              
+            })
+            .catch(error => {
+                console.log(error);
+            });
+
+        });
+  
+   });
+
+   
    commonEmitter.on('new_referral_sms_event', function( phone, sender_fullname) {
     setImmediate(() => {
         var sender = 'LEAP APP';

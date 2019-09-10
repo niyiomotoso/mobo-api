@@ -4,6 +4,7 @@ module.exports = {
     "appEndpoint": "http://localhost:3600",
     "apiEndpoint": "http://localhost:3600",
     "profile_pic_path": "/dp/",
+    "project_image_path": "/projectImages/",
     "jwt_secret": "myS33!!creeeT",
     "jwt_expiration_in_seconds": 36000000,
     "MONGO_URL": mongoUrl,

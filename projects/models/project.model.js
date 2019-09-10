@@ -21,6 +21,8 @@ const projectSessionSchema = new Schema({
     status: String,
     //AMOUNT_TARGET, TIME_TARGET
     targetMode: String,
+    projectType: String,
+    coverImage: String,
     contributions: Array,
     withdrawals: Array
     
@@ -81,10 +83,16 @@ exports.makeProjectRequest = (projectData)=> {
     var status =  'ACTIVE';
     var contributions = [];
     var withdrawals = [];
+    var projectType = projectData.projectType;
+    var coverImage =  '';
+    if(projectData.coverImage != undefined){
+        coverImage = config.project_image_path+projectData.coverImage;
+    }
 
     let session = {"userId": userId, "targetAmount": targetAmount, "targetMode":
         targetMode, "targetTime" : targetTime, "totalContributedAmount": totalContributedAmount,
-        "status": status, "contributions": contributions, "withdrawals": withdrawals, "projectName": projectName
+        "status": status, "contributions": contributions, "withdrawals": withdrawals, "projectName": projectName,
+        "projectType": projectType, "coverImage" : coverImage
      };
   //   var maximumAllowed =  this.getMaximumProject(userId);
 
@@ -100,15 +108,27 @@ exports.makeProjectRequest = (projectData)=> {
         );
         }
     )
-//}
+
 };
 
 
-exports.getUserProjects = (userId)=>{
+exports.getUserProjects = (req)=>{
+    var userId = req.params.userId;
+    var projectType = req.query.projectType;
+
     return new Promise( (resolve, reject)=> {
-        projectSession.find ({"userId" : userId}, function( err, result ){
-            resolve(result);
-        });
+
+        if(projectType != undefined){
+            projectSession.find ({"userId" : userId, "projectType": projectType}, function( err, result ){
+                resolve(result);
+            });
+        }else{
+            projectSession.find ({"userId" : userId}, function( err, result ){
+                resolve(result);
+            });
+        }
+
+
     });
 
 };

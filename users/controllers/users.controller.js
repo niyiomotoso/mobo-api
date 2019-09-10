@@ -78,7 +78,7 @@ exports.removeById = (req, res) => {
 };
 
 exports.uploadUserProfilePic = (req, res) => {
-   
+   if(req.file != undefined && req.file.filename != undefined){
    UserModel.uploadUserProfilePic(req.params.userId, req.file.filename)
    .then((result) => {
        //res.status(200).send({result});
@@ -89,5 +89,33 @@ exports.uploadUserProfilePic = (req, res) => {
        res.status(200).send(response.success(result, "Pic Uploaded Successfully"));
     }
    });
+   }
+   else{
+        res.status(200).send(response.failure("no_pic_attached", "Profie picture not attached"));  
+   }
 
 };
+
+
+exports.verifyPhone = (req, res) => {
+    if(req.query.phoneNumber == undefined || req.query.verificationCode == undefined ){
+
+        res.status(200).send(response.failure("params_not_set", "Phone Number or verification Code not set"));
+    }
+    else{
+    UserModel.verifyPhone(req.query.phoneNumber, req.query.verificationCode)
+    .then((result) => {
+        //res.status(200).send({result});
+     if(result == "invalid_verification_details"){
+         res.status(200).send(response.failure("invalid_verification_details", "invalid verification details"));
+    
+     }else{
+        res.status(200).send(response.success(result, "Verification successful"));
+     }
+    });
+    }
+    
+ 
+ };
+
+
