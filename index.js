@@ -10,6 +10,7 @@ const UsersRouter = require('./users/routes.config');
 const AssessmentsRouter = require('./assessment_questions/routes.config');
 const LoanRouter = require('./loans/routes.config');
  const ProjectRouter = require('./projects/routes.config');
+ const PaymentRouter = require('./payments/routes.config');
 const options = {
     useNewUrlParser: true, 
     reconnectTries: 60, 
@@ -41,7 +42,7 @@ UsersRouter.routesConfig(app);
 AssessmentsRouter.routesConfig(app);
 LoanRouter.routesConfig(app);
 ProjectRouter.routesConfig(app);
-
+PaymentRouter.routesConfig(app);
 // MongoClient.connect(url, options, (err, database) => {
 //     if (err) {
 //       console.log(`FATAL MONGODB CONNECTION ERROR: ${err}:${err.stack}`)

@@ -78,37 +78,40 @@ exports.makeLoanRequest = (loanData)=> {
         "status": status, "vouches": vouches, "payBacks": payBacks
      };
 
-   
-       return this.getMaximumLoan(userId).then( (maximumAllowed)=>{
-            console.log("maximumAllowed", maximumAllowed);
-            const loan = new loanSession(session);
-            console.log(parseFloat(maximumAllowed), parseFloat(amountRequested) );
-        
-            if( parseFloat(maximumAllowed) < parseFloat(amountRequested) ){
-                return 'limit_exceeded';
-            }else {
-                return new Promise( (resolve, reject) => {
-                    loanSession.find ({"status" : "ACTIVE"}, function( err, result ){
-                        if(result.length >= 1){
-                            resolve("one_active_loan");
-                        }else{
-                            loan.save(
-                                function(err, savedSession){     
-                                    commonEmitter.emit('new_loan_request_sms_event', userId, amountRequested);
-                                    resolve(savedSession);
-                                }
-                                )
-                        }
-                    });
-
-                   
-                    });
+     const users = mongoose.model('Users');
+     let parent = this;
+     return new Promise( (resolve, reject)=> {
+       users.findOne ( {_id: userId}, function( err, portfolio ){
+        if( portfolio == undefined || portfolio == null ){
+             resolve('user_not_found'); 
+        }else{
+             parent.getMaximumLoan(userId).then( (maximumAllowed)=>{    
+                const loan = new loanSession(session);
+                console.log(parseFloat(maximumAllowed), parseFloat(amountRequested) );
+            
+                if( parseFloat(maximumAllowed) < parseFloat(amountRequested) ){
+                    resolve('limit_exceeded');
+                }else {                  
+                        loanSession.find ({"status" : "ACTIVE", "userId": userId}, function( err, result ){
+                            if(result.length >= 1){
+                                resolve("one_active_loan");
+                            }else{
+                                loan.save(
+                                    function(err, savedSession){     
+                                        commonEmitter.emit('new_loan_request_sms_event', userId, amountRequested);
+                                        resolve(savedSession);
+                                    }
+                                    )
+                            }                 
+                        });
+                    }
+            
+            });
         }
-
-     });
+        });
+    });
 
 };
-
 
 exports.getUserLoans = (req)=>{
     console.log(req);

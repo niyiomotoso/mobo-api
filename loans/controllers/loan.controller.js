@@ -71,12 +71,17 @@ exports.makeLoanRequest = (req, res) => {
     if(req.body.userId == undefined || req.body.amountRequested  == undefined   ){
         res.status(200).send(response.failure("incomplete_params", "incomplete parameter set"));
     }
+    else if( req.body.amountRequested  <  5  ){
+        res.status(200).send(response.failure("invalid_amount", "invalid amount"));
+    }
     else{    
         LoanModel.makeLoanRequest(req.body)
             .then((result) => {
                 
                 if(result == 'one_active_loan'){
                     res.status(200).send(response.failure("one_active_loan", "You still have an active loan"));
+                }else if(result == 'user_not_found'){
+                    res.status(200).send(response.failure("user_not_found", "User not found"));
                 }
                 else if(result == 'limit_exceeded'){
                     res.status(200).send(response.failure("limit_exceeded", "loan limit exceeded"));
