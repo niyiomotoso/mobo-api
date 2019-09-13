@@ -18,6 +18,7 @@ const creditHistorySchema = new Schema({
     toName: String,
     transactionType: String,
     transactionStatus: String,
+    reference: String
     
 }, {timestamps: true});
 
@@ -40,6 +41,7 @@ exports.addNewTransaction = (transaction)=> {
     return new Promise( function (resolve, reject )  {
     trx = new userCreditHistory(transaction);
     trx.save(function (error, result){
+        result.status = true;
         resolve(result);
         });
   });

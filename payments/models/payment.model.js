@@ -1,6 +1,7 @@
 const config = require('../../common/config/env.config.js');
 const mongoose = require('mongoose');
 const https = require('https')
+const request = require('request')
 const EventEmitter = require('events');
 var common = require('../../common/generalEventEmitter.js');
 var commonEmitter = common.commonEmitter;
@@ -36,10 +37,10 @@ paymentSessionSchema.findById = function (cb) {
 
 const paymentSession = mongoose.model('paymentSession', paymentSessionSchema);
 
-exports.logPayment = (paymentData) => {
+exports.logPaystackPayment = (paymentData) => {
     var userId = paymentData.userId;
     var reference = paymentData.reference;
-    var amount = paymentData.amount;
+    var pending_amount = paymentData.amount;
 
     const users = mongoose.model('Users');
     let parent = this;
@@ -48,42 +49,73 @@ exports.logPayment = (paymentData) => {
        if( userData == undefined || userData == null ){
             resolve('user_not_found'); 
        }else{
-        let session = {"userId": userId, "reference": reference, "amount": amount, "status": "PENDING", "channel": "PAYSTACK_ONLINE"};
+        const creditHistory = mongoose.model('UserCreditHistory');
+        creditHistory.find({ reference: reference}, function(err, history){
+            if(history.length > 0){
+                resolve('existing_transaction');
+            }else{
+       
+        let session = {"userId": userId, "reference": reference, "amount": pending_amount, "status": "PENDING", "channel": "PAYSTACK_ONLINE"};
         const payment = new paymentSession(session);
         payment.save(
                 function(err, savedSession){  
         
                     const options = {
-                    hostname: 'api.paystack.co',
-                    port: 443,
-                    path: '/transaction/verify/'+reference,
+                    url: 'https://api.paystack.co/transaction/verify/'+reference,
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': 'BEARER sk_test_a3444f7e4420ec600be5b0fec811136c5da8ebb1'
                       }
-                    }
+                    };
 
-                    const req = https.request(options, (res) => {
-                    console.log(`statusCode: ${res.statusCode}`)
+                    request(options, function(err, res, body) {
+                        let json = JSON.parse(body);
+                    
+                        if(json.status == false){
+                            resolve(json)
+                        }
+                        else if(json.status == true && json.data.status == "success"){
+                            var amount = json.data.amount;
+                            console.log(json.data);
+                            var transaction =  {"amount": amount,
+                                                        "fromUserId" : "-",
+                                                        "fromName" : "PAYSTACK",
+                                                        "toUserId" : userId,
+                                                        "toName" : userData.firstName+" "+userData.lastName,
+                                                        "transactionType" : "PAYSTACK",
+                                                        "reference": reference
+                                                        };
 
-                    res.on('data', (d) => {
-                        process.stdout.write(d)
-                    })
+                           UserPortfolioModel.addToWalletBalance(userId, transaction)
+                           .then(function(outcome){
+                            //not working
+                            var updateObject = {"status": "APPROVED", "amount" : amount}; 
+                            console.log("savedSession", savedSession);
+                            payment.updateOne({ reference: reference}, {$set: updateObject},
+                                function (err, result){
+                                    
+                                    if(result.nModified == 1){     
+                                        console.log("outcome", outcome);
+                                        resolve(outcome); 
+                                     }
+                                        
+                                });   
+                          
+                           });
+                          
+                        }
+                        else{
+                            console.log("else", json.status);
+                            resolve(json);
+                        }
                     });
-
-                    req.on('error', (error) => {
-                    console.error(error)
-                    });
-
-                    req.end()
-
-                   resolve(savedSession);
-                        });
-            }                 
-        });
+                });
+            }
          });
+    }
      
+}); });
 };
 
 exports.makePaymentRequest = (paymentData)=> {
@@ -128,18 +160,18 @@ exports.makePaymentRequest = (paymentData)=> {
 };
 
 
-exports.getUserPayments = (req)=>{
+exports.getLogs = (req)=>{
     var userId = req.params.userId;
-    var paymentType = req.query.paymentType;
+    var status = req.query.status;
 
     return new Promise( (resolve, reject)=> {
-
-        if(paymentType != undefined){
-            paymentSession.find ({"userId" : userId, "paymentType": paymentType}, function( err, result ){
+        const creditHistory = mongoose.model('UserCreditHistory');
+        if(status != undefined){
+            creditHistory.find ({"toUserId" : userId, "status": status}, function( err, result ){
                 resolve(result);
             });
         }else{
-            paymentSession.find ({"userId" : userId}, function( err, result ){
+            creditHistory.find ({"toUserId" : userId}, function( err, result ){
                 resolve(result);
             });
         }

@@ -19,15 +19,15 @@ const upload = multer({
 
 exports.routesConfig = function (app) {
     app.post('/payments/paystack/log_payment', [
-        PaymentController.logPayment
+        PaymentController.logPaystackPayment
     ]);
 
     app.post('/payments/add_contribution_to_payment', [
         PaymentController.addContributionToPayment
     ]);
 
-    app.get('/payments/:userId/get_user_payments', [ 
-       PaymentController.getUserPayments
+    app.get('/payments/:userId/get_log', [ 
+       PaymentController.getLogs
     ]);
     
     // app.get('/payments/:userId/get_maximum_amount', [

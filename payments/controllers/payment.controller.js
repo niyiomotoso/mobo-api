@@ -11,20 +11,29 @@ const response = require('../../common/jsonResponse');
 //         });
 // };
 
-exports.logPayment = (req, res) => {
+exports.logPaystackPayment = (req, res) => {
     if(req.body.userId == undefined || req.body.reference == undefined || req.body.amount == undefined ){
         res.status(200).send(response.failure("incomplete_params", "incomplete parameter set"));
     }
     
-    PaymentModel.logPayment(req.body)
+    PaymentModel.logPaystackPayment(req.body)
         .then((result) => {
+            console.log("result", result);
+            if(result == 'existing_transaction'){
+                res.status(200).send(response.failure("error_processing_transaction", "transaction already processed"));
+            }
+            else if(result.status != undefined && result.status == false){
+                res.status(200).send(response.failure("error_processing_transaction", result));
+            }else if(result.transactionStatus != undefined && result.transactionStatus == "DONE"){
             res.status(200).send(response.success(result, "Loaded Successfully"));
-        
+            }else{
+                res.status(200).send(response.failure("error_processing_transaction", result));
+            }
         });
 };
 
-exports.getUserPayments = (req, res) => {
-    PaymentModel.getUserPayments(req)
+exports.getLogs = (req, res) => {
+    PaymentModel.getLogs(req)
         .then((result) => {
             res.status(200).send(response.success(result, "Loaded Successfully"));
         

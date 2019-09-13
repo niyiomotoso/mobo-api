@@ -127,7 +127,7 @@ exports.addToWalletBalance = (userId, trxData) => {
         else{
           //  return result;
             userPortfolio.findOne({userId: userId}, function(err, wallet_details) {
-                console.log(wallet_details);
+    
                 if(wallet_details == null ){
                     var walletData = {'userId': userId, 'balance': 0.00, referrals: [], partners: []};
                     const userW = new userPortfolio(walletData);
@@ -149,7 +149,9 @@ exports.addToWalletBalance = (userId, trxData) => {
                                                         "toUserId" : trxData.toUserId,
                                                         "toName" : trxData.toName,
                                                         "transactionType" : trxData.transactionType,
-                                                        "transactionStatus" : "DONE" };
+                                                        "transactionStatus" : "DONE",
+                                                        "reference": trxData.reference
+                                                     };
                                       
                                     resolve  (creditHistory.addNewTransaction(transaction));
                                     
