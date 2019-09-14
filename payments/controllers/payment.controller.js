@@ -1,4 +1,5 @@
 const PaymentModel = require('../models/payment.model');
+var creditHistory = require("../../users/models/users_credit_history.model")
 const response = require('../../common/jsonResponse');
 
 
@@ -18,7 +19,6 @@ exports.logPaystackPayment = (req, res) => {
     
     PaymentModel.logPaystackPayment(req.body)
         .then((result) => {
-            console.log("result", result);
             if(result == 'existing_transaction'){
                 res.status(200).send(response.failure("error_processing_transaction", "transaction already processed"));
             }
@@ -32,8 +32,67 @@ exports.logPaystackPayment = (req, res) => {
         });
 };
 
+
+exports.logManualTransferPayment = (req, res) => {
+    if(req.body.userId == undefined || req.body.amount == undefined ){
+        res.status(200).send(response.failure("incomplete_params", "User and Amount must be specified"));
+    }
+    else if(req.file == undefined || req.file.filename == undefined   ){
+        res.status(200).send(response.failure("incomplete_params", "Payment evidence must be uploaded"));
+    }
+    else{
+        req.body.paymentEvidence = req.file.filename;
+        PaymentModel.logManualTransferPayment(req.body)
+            .then((result) => {
+                if(result == 'user_not_found'){
+                    res.status(200).send(response.failure("user_not_found", "user not found"));
+                }
+                else{
+                res.status(200).send(response.success(result, "Loaded Successfully"));
+                }
+
+            });
+    }
+};
+
+
+exports.updateManualTransferPayment = (req, res) => {
+    if(req.body.paymentId == undefined || req.body.status == undefined ){
+        res.status(200).send(response.failure("incomplete_params", "Payment ID and Payment Status must be specified"));
+    }else if(req.body.status != "APPROVED" && req.body.status != "DISAPPROVED" ){
+        res.status(200).send(response.failure("invalid_status", "Invalid Payment Status"));
+    }
+    else{
+    
+        PaymentModel.updateManualTransferPayment(req.body)
+            .then((result) => {
+                if(result == 'payment_not_found'){
+                    res.status(200).send(response.failure("payment_not_found", "payment not found"));
+                }else if(result == 'payment_already_approved'){
+                    res.status(200).send(response.failure("payment_already_approved", "payment already approved"));
+                }
+                else if(result == 'payment_already_disapproved'){
+                    res.status(200).send(response.failure("payment_already_disapproved", "payment already disapproved"));
+                }
+                
+                else{
+                res.status(200).send(response.success(result, "Loaded Successfully"));
+                }
+
+            });
+    }
+};
+
 exports.getLogs = (req, res) => {
     PaymentModel.getLogs(req)
+        .then((result) => {
+            res.status(200).send(response.success(result, "Loaded Successfully"));
+        
+        });
+};
+
+exports.getCreditHistoryLogs = (req, res) => {
+    creditHistory.getLogs(req)
         .then((result) => {
             res.status(200).send(response.success(result, "Loaded Successfully"));
         

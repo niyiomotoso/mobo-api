@@ -18,8 +18,8 @@ const paymentSessionSchema = new Schema({
     status:String,
     channel: String,
     amount: String,
-    reference: String
-    
+    reference: String,
+    paymentEvidence: String
 }, {timestamps: true});
 
 paymentSessionSchema.virtual('id').get(function () {
@@ -43,7 +43,6 @@ exports.logPaystackPayment = (paymentData) => {
     var pending_amount = paymentData.amount;
 
     const users = mongoose.model('Users');
-    let parent = this;
     return new Promise( (resolve, reject)=> {
       users.findOne ( {_id: userId}, function( err, userData ){
        if( userData == undefined || userData == null ){
@@ -51,7 +50,7 @@ exports.logPaystackPayment = (paymentData) => {
        }else{
         const creditHistory = mongoose.model('UserCreditHistory');
         creditHistory.find({ reference: reference}, function(err, history){
-            if(history.length > 0){
+            if(history.length > 0 ){
                 resolve('existing_transaction');
             }else{
        
@@ -77,7 +76,7 @@ exports.logPaystackPayment = (paymentData) => {
                         }
                         else if(json.status == true && json.data.status == "success"){
                             var amount = json.data.amount;
-                            console.log(json.data);
+                            
                             var transaction =  {"amount": amount,
                                                         "fromUserId" : "-",
                                                         "fromName" : "PAYSTACK",
@@ -90,18 +89,19 @@ exports.logPaystackPayment = (paymentData) => {
                            UserPortfolioModel.addToWalletBalance(userId, transaction)
                            .then(function(outcome){
                             //not working
-                            var updateObject = {"status": "APPROVED", "amount" : amount}; 
-                            console.log("savedSession", savedSession);
-                            payment.updateOne({ reference: reference}, {$set: updateObject},
-                                function (err, result){
-                                    
-                                    if(result.nModified == 1){     
-                                        console.log("outcome", outcome);
-                                        resolve(outcome); 
-                                     }
-                                        
-                                });   
-                          
+                            const payment = mongoose.model('paymentSession');
+                            
+                            console.log("payment ", payment);
+                            
+                                var updateObject = {"status": "APPROVED"}; 
+                                payment.updateOne({ _id:savedSession._id},{$set: updateObject},
+                                    function (err, result){
+                                        console.log("result", result);
+                                        if(result.nModified == 1){     
+                                            resolve(outcome); 
+                                        }
+        
+                                    });         
                            });
                           
                         }
@@ -118,46 +118,99 @@ exports.logPaystackPayment = (paymentData) => {
 }); });
 };
 
-exports.makePaymentRequest = (paymentData)=> {
 
 
+exports.logManualTransferPayment = (paymentData) => {
+    var userId = paymentData.userId;
+    var pending_amount = paymentData.amount;
 
-    var userId=  paymentData.userId;
-    var targetAmount =  paymentData.targetAmount;
-    var totalContributedAmount  = 0;
-    var targetMode = paymentData.targetMode;
-    var targetTime = paymentData.targetTime;
-    var paymentName = paymentData.paymentName;
-    var status =  'ACTIVE';
-    var contributions = [];
-    var withdrawals = [];
-    var paymentType = paymentData.paymentType;
-    var coverImage =  '';
-    if(paymentData.coverImage != undefined){
-        coverImage = config.payment_image_path+paymentData.coverImage;
-    }
-
-    let session = {"userId": userId, "targetAmount": targetAmount, "targetMode":
-        targetMode, "targetTime" : targetTime, "totalContributedAmount": totalContributedAmount,
-        "status": status, "contributions": contributions, "withdrawals": withdrawals, "paymentName": paymentName,
-        "paymentType": paymentType, "coverImage" : coverImage
-     };
-  //   var maximumAllowed =  this.getMaximumPayment(userId);
-
-    const payment = new paymentSession(session);
-    // if( parseFloat(maximumAllowed) < parseFloat(targetAmount) ){
-    //     return 'limit_exceeded';
-    // }else{
-    return new Promise ( ( resolve, reject) => {
-        payment.save(
-            function(err, savedSession){
-                resolve(savedSession);
-            }
-        );
+    const users = mongoose.model('Users');
+    let parent = this;
+    return new Promise( (resolve, reject)=> {
+      users.findOne ( {_id: userId}, function( err, userData ){
+       if( userData == undefined || userData == null ){
+            resolve('user_not_found'); 
+       }else{
+        var d = new Date();
+        var datetime = d.getTime();
+        var paymentEvidence = '';
+        if(paymentData.paymentEvidence != undefined){
+            paymentEvidence = config.payment_image_path+paymentData.paymentEvidence;
         }
-    )
 
+        let session = {"userId": userId, "reference": datetime, "amount": pending_amount, "status": "PENDING", "channel": "BANK_TRANSFER", "paymentEvidence":paymentEvidence };
+        const payment = new paymentSession(session);
+        payment.save(
+                function(err, savedSession){  
+                       console.log("else", savedSession);
+                            resolve(savedSession);
+                        });
+                    }
+                });
+      
+});
 };
+
+
+exports.updateManualTransferPayment = (paymentData) => {
+    var paymentId = paymentData.paymentId;
+    var status = paymentData.status;
+
+    const payment = mongoose.model('paymentSession');
+
+    return new Promise( (resolve, reject)=> {
+        payment.findOne ( {_id: paymentId}, function( err, data ){
+       if( data == undefined || data == null ){
+            resolve('payment_not_found'); 
+       }else if(data.status == "APPROVED"){
+        resolve('payment_already_approved'); 
+       }else if(data.status == "DISAPPROVED"){
+        resolve('payment_already_disapproved'); 
+       }else{
+           if( status == 'APPROVED' ){
+                var transaction =  {"amount": data.amount,
+                "fromUserId" : "-",
+                "fromName" : "LEAP_TRANSFER",
+                "toUserId" : data.userId,
+                "toName" : "",
+                "transactionType" : "LEAP_TRANSFER",
+                "reference": data.reference
+                };
+
+                UserPortfolioModel.addToWalletBalance(data.userId, transaction)
+                .then(function(outcome){
+        
+                var updateObject = {"status": "APPROVED"}; 
+                //console.log("savedSession", savedSession);
+                payment.updateOne({ _id : data._id}, {$set: updateObject},
+                function (err, result){
+
+                    if(result.nModified == 1){     
+                        resolve(outcome); 
+                    }
+
+                });   
+
+                });
+           }else{
+            var updateObject = {"status": "DISAPPROVED"}; 
+            //console.log("savedSession", savedSession);
+            payment.updateOne({ _id : data._id}, {$set: updateObject},
+            function (err, result){
+
+                payment.findOne ( {_id: paymentId}, function( err, updated_payment ){
+                    resolve(updated_payment); 
+                });
+
+            }); 
+
+           }       
+            }
+            });
+      
+});
+};
+
 
 
 exports.getLogs = (req)=>{
@@ -165,13 +218,13 @@ exports.getLogs = (req)=>{
     var status = req.query.status;
 
     return new Promise( (resolve, reject)=> {
-        const creditHistory = mongoose.model('UserCreditHistory');
+        const paymentSession = mongoose.model('paymentSession');
         if(status != undefined){
-            creditHistory.find ({"toUserId" : userId, "status": status}, function( err, result ){
+            paymentSession.find ({"userId" : userId, "status": status}, function( err, result ){
                 resolve(result);
             });
         }else{
-            creditHistory.find ({"toUserId" : userId}, function( err, result ){
+            paymentSession.find ({"userId" : userId}, function( err, result ){
                 resolve(result);
             });
         }
@@ -181,84 +234,6 @@ exports.getLogs = (req)=>{
 
 };
 
-exports.addContributionToPayment = (paymentData)=>{
-    return new Promise( (resolve, reject)=> {
-        var paymentId = paymentData.paymentId;
-        var userId = paymentData.contributorUserId;
-        var amount = paymentData.amount;
-
-        const UserPortfolio = mongoose.model('UserPortfolio');
-
-        UserPortfolio.findOne ({ userId : userId}, function( err, portfolio ){
-            if( portfolio == undefined || portfolio == null ){
-                resolve('user_not_found'); 
-            }
-            else if( parseFloat(portfolio.balance) < parseFloat(amount) ){
-                resolve('contributor_insufficient_balance'); 
-            }
-       else{
-        
-        paymentSession.findOne ({_id : paymentId}, function( err, paymentData ){
-            if( paymentData == undefined || paymentData == null )
-              resolve('payment_id_not_found');
-            else{
- 
-            let contributions = paymentData.contributions;
-           
-            var dateTime =  Date.now();
-            dateTime = moment(dateTime).format("YYYY-MM-DD HH:mm:ss");
-            
-
-            var totalContributedAmountAfterNewContribution =  parseFloat(paymentData.totalContributedAmount) + parseFloat( amount);
-            
-            if(totalContributedAmountAfterNewContribution > parseFloat(paymentData.targetAmount) ){
-                resolve('requested_amount_exceeded');
-            }
-            else{
-                // let obj = contributions.find(o => o.userId  == userId);
-
-                // if(obj != undefined ){
-                  //if already exist, removed the current from the newly added
-                //    contributions.splice(contributions.indexOf(obj), 1);
-                  
-                //    var totalContributedAmount =  totalContributedAmountAfterNewContribution - parseFloat(obj.amount);
-                //    contributions.push({ "userId": userId, "amount": amount, "status": 1, "createdAt": dateTime});                   
-                // }else{
-            var totalContributedAmount =  totalContributedAmountAfterNewContribution;
-            contributions.push({ "userId": userId, "amount": amount, "status": 1, "createdAt": dateTime});     
-                                            
-                    //}
-
-                var updateObject = {'contributions': contributions, 'totalContributedAmount': totalContributedAmount}; 
-
-                paymentSession.update({ _id  : paymentId}, {$set: updateObject},
-                    function (err, paymentSessionresult){
-                        if(paymentSessionresult){     
-                            //deduct from contributor's balance
-                            var newBalance = parseFloat(portfolio.balance) - parseFloat(amount);
-                            var updateObject = {'balance': newBalance}; 
-                            UserPortfolio.update({ userId  : userId}, {$set: updateObject},
-                                function (err, portfolioUpdateResult){
-                                    if(portfolioUpdateResult){  
-                                        paymentSession.findOne({_id : paymentId}, function(err, result){     
-                                        resolve({ "paymentId": paymentId, "targetAmount": result.targetAmount, "totalContributedAmount": result.totalContributedAmount});
-                        }); 
-                        }
-                            
-                    });
-                    }
-                            
-            });
-
-            }
-     
-            }
-        });
-    }
-    });
-    });
-
-};
 
 
 

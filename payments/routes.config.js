@@ -22,13 +22,25 @@ exports.routesConfig = function (app) {
         PaymentController.logPaystackPayment
     ]);
 
+    app.post('/payments/banktransfer/log_payment', upload.single('paymentEvidence'), [
+        PaymentController.logManualTransferPayment
+        ]);
+
+    app.patch('/payments/banktransfer/update_payment', [
+            PaymentController.updateManualTransferPayment
+            ]);
+
     app.post('/payments/add_contribution_to_payment', [
         PaymentController.addContributionToPayment
     ]);
-
+    
     app.get('/payments/:userId/get_log', [ 
        PaymentController.getLogs
     ]);
+    
+    app.get('/credithistory/:userId/get_log', [ 
+        PaymentController.getCreditHistoryLogs
+     ]);
     
     // app.get('/payments/:userId/get_maximum_amount', [
       

@@ -46,3 +46,24 @@ exports.addNewTransaction = (transaction)=> {
         });
   });
 };
+
+exports.getLogs = (req)=>{
+    var userId = req.params.userId;
+    var status = req.query.status;
+
+    return new Promise( (resolve, reject)=> {
+        const UserCreditHistory = mongoose.model('UserCreditHistory');
+        if(status != undefined){
+            UserCreditHistory.find ({"toUserId" : userId, "status": status}, function( err, result ){
+                resolve(result);
+            });
+        }else{
+            UserCreditHistory.find ({"toUserId" : userId}, function( err, result ){
+                resolve(result);
+            });
+        }
+
+
+    });
+
+};

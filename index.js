@@ -36,6 +36,7 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.use('*/dp',express.static('public/profile_pictures'));
 app.use('*/uploads',express.static('public/uploads'));
 app.use('*/projectImages',express.static('public/project_pictures'));
+app.use('*/paymentImages',express.static('public/payment_pictures'));
 
 AuthorizationRouter.routesConfig(app);
 UsersRouter.routesConfig(app);
