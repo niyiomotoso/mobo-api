@@ -123,6 +123,37 @@ exports.createUser = (userData) => {
 }
 };
 
+
+exports.resendActivationCode = (userData) => {
+    // userData.referralCode  = IDGenerate();
+     if(userData.phone != undefined){
+     return new Promise((resolve, reject )=>{
+          User.find({phone: userData.phone}, function(err, result){
+         
+         if(result.length  == 0 ){
+             resolve("phone_not_found");         
+         }
+         else{
+                     var activationCode =  generateVerficationCode();
+                     userData.activationCode = activationCode;
+                     const user = mongoose.model('Users');
+                     var updateObject = {"activationCode": activationCode};
+                     user.updateOne( {phone: userData.phone}, {$set: updateObject},
+                         function (err, updated_user){
+                        
+                            commonEmitter.emit('new_user_for_verification', userData.phone, activationCode); 
+                            if(updated_user.nModified == 1){
+                            resolve(userData);
+                            }
+ 
+                         }
+                     );
+                 }
+     });
+     });
+ }
+ };
+
 exports.list = (perPage, page) => {
     return new Promise((resolve, reject) => {
         User.find()

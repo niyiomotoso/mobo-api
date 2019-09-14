@@ -88,3 +88,11 @@ exports.removeById = (userId) => {
     });
 };
 
+exports.getMemebershipFee = (userId) => {
+    return new Promise((resolve, reject) => {
+       // var fees = [200, 4200, 750];
+        var result = [2000, 4200, 750][Math.floor(Math.random() * 3)]
+        resolve(result);
+    });
+};
+

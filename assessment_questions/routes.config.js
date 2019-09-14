@@ -14,6 +14,10 @@ exports.routesConfig = function (app) {
        
         AssessmentController.getByUserId
     ]);
+    app.get('/assessment_questions/:userId/get_membership_fee', [
+       
+        AssessmentController.getMemebershipFee
+    ]);
     app.patch('/assessment_questions/:userId', [
         
         AssessmentController.patchByUserId

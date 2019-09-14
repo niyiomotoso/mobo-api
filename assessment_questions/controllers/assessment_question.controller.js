@@ -54,3 +54,12 @@ exports.removeByUserId = (req, res) => {
             res.status(200).send(response.success(result, "Deleted Successfully"));
         });
 };
+
+
+exports.getMemebershipFee = (req, res) => {
+    AssessQuestionModel.getMemebershipFee(req.params.userId)
+        .then((result)=>{
+            //res.status(200).send({});
+            res.status(200).send(response.success(result, "Loaded Successfully"));
+        });
+};

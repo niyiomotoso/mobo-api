@@ -24,6 +24,23 @@ exports.insert = (req, res) => {
         });
 };
 
+
+exports.resendActivationCode = (req, res) => {
+    if(req.body == undefined || req.body.phone == undefined){
+        res.status(200).send(response.failure("phone_is_required", "phone number is required"));
+    }else{
+    UserModel.resendActivationCode(req.body)
+        .then((result) => {
+            if(result == "phone_not_found"){
+                res.status(200).send(response.failure("phone_not_found", "phone not found"));
+    
+            }else{
+                res.status(200).send(response.success({id: result.phone}, "Activation Code Sent"));          
+            }
+        });
+    }
+};
+
 exports.list = (req, res) => {
     let limit = req.query.limit && req.query.limit <= 100 ? parseInt(req.query.limit) : 10;
     let page = 0;

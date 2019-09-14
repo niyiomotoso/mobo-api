@@ -25,6 +25,10 @@ exports.routesConfig = function (app) {
     app.post('/users', [
         UsersController.insert
     ]);
+    app.post('/users/resendActivationCode', [
+        UsersController.resendActivationCode
+    ]);
+    
     app.post('/users/verifyPhone', [
         UsersController.verifyPhone
     ]);
