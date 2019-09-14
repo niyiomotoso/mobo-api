@@ -91,8 +91,15 @@ exports.removeById = (userId) => {
 exports.getMemebershipFee = (userId) => {
     return new Promise((resolve, reject) => {
        // var fees = [200, 4200, 750];
+       const user = mongoose.model('Users');
+       user.findOne ({ _id : userId}, function( err, portfolio ){
+        if( portfolio == undefined || portfolio == null ){
+            resolve('user_not_found'); 
+        }else{
         var result = [2000, 4200, 750][Math.floor(Math.random() * 3)]
         resolve(result);
+        } 
+    });
     });
 };
 
