@@ -34,14 +34,15 @@ exports.logPaystackPayment = (req, res) => {
 
 
 exports.logManualTransferPayment = (req, res) => {
-    if(req.body.userId == undefined || req.body.amount == undefined ){
-        res.status(200).send(response.failure("incomplete_params", "User and Amount must be specified"));
+    if(req.body.userId == undefined || req.body.amount == undefined || req.body.depositorName == undefined || req.body.paymentDate == undefined ){
+        res.status(200).send(response.failure("incomplete_params", "User, Amount, Depositor's name and Payment date must be specified"));
     }
-    else if(req.file == undefined || req.file.filename == undefined   ){
-        res.status(200).send(response.failure("incomplete_params", "Payment evidence must be uploaded"));
-    }
+    // else if(req.file == undefined || req.file.filename == undefined   ){
+    //     res.status(200).send(response.failure("incomplete_params", "Payment evidence must be uploaded"));
+    // }
     else{
-        req.body.paymentEvidence = req.file.filename;
+        //req.body.paymentEvidence = req.file.filename;
+        req.body.paymentEvidence = "";
         PaymentModel.logManualTransferPayment(req.body)
             .then((result) => {
                 if(result == 'user_not_found'){

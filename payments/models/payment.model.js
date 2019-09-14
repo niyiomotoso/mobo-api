@@ -19,7 +19,10 @@ const paymentSessionSchema = new Schema({
     channel: String,
     amount: String,
     reference: String,
-    paymentEvidence: String
+    paymentEvidence: String,
+    depositorName: String,
+    paymentDate: String
+
 }, {timestamps: true});
 
 paymentSessionSchema.virtual('id').get(function () {
@@ -90,10 +93,8 @@ exports.logPaystackPayment = (paymentData) => {
                            .then(function(outcome){
                             //not working
                             const payment = mongoose.model('paymentSession');
-                            
-                            console.log("payment ", payment);
-                            
-                                var updateObject = {"status": "APPROVED"}; 
+                           
+                            var updateObject = {"status": "APPROVED"}; 
                                 payment.updateOne({ _id:savedSession._id},{$set: updateObject},
                                     function (err, result){
                                         console.log("result", result);
@@ -106,7 +107,7 @@ exports.logPaystackPayment = (paymentData) => {
                           
                         }
                         else{
-                            console.log("else", json.status);
+                          
                             resolve(json);
                         }
                     });
@@ -123,6 +124,8 @@ exports.logPaystackPayment = (paymentData) => {
 exports.logManualTransferPayment = (paymentData) => {
     var userId = paymentData.userId;
     var pending_amount = paymentData.amount;
+    var paymentDate = paymentData.paymentDate;
+    var depositorName = paymentData.depositorName;
 
     const users = mongoose.model('Users');
     let parent = this;
@@ -138,7 +141,7 @@ exports.logManualTransferPayment = (paymentData) => {
             paymentEvidence = config.payment_image_path+paymentData.paymentEvidence;
         }
 
-        let session = {"userId": userId, "reference": datetime, "amount": pending_amount, "status": "PENDING", "channel": "BANK_TRANSFER", "paymentEvidence":paymentEvidence };
+        let session = {"userId": userId, "reference": datetime, "amount": pending_amount, "status": "PENDING", "channel": "BANK_TRANSFER", "paymentEvidence":paymentEvidence, "paymentDate" : paymentDate, "depositorName" : depositorName};
         const payment = new paymentSession(session);
         payment.save(
                 function(err, savedSession){  
