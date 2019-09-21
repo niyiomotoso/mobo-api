@@ -85,7 +85,7 @@ exports.makeProjectRequest = (projectData)=> {
     var withdrawals = [];
     var projectType = projectData.projectType;
     var coverImage =  '';
-    if(projectData.coverImage != undefined){
+    if(projectData.coverImage != undefined && projectData.coverImage != null ){
         coverImage = config.project_image_path+projectData.coverImage;
     }
 
@@ -212,6 +212,35 @@ exports.addContributionToProject = (projectData)=>{
 
 };
 
+
+exports.updateProjectStatus = (projectId, status)=>{
+    return new Promise( (resolve, reject)=> {
+       
+        projectSession.findOne ({_id : projectId}, function( err, projectData ){
+            if( projectData == undefined || projectData == null )
+              resolve('project_id_not_found');
+            else if(status == "CLOSED" && projectData.targetMode == "ANYTIME"){
+           
+                var updateObject = {'status': status};  
+                projectSession.updateOne({ _id  : projectId}, {$set: updateObject},
+                    function (err, result){
+                        if(result){     
+                            projectSession.findOne({_id : projectId}, function(err, result){     
+                            resolve(result);
+                        }); 
+                    }
+                            
+                    });
+
+            }
+            else{
+            resolve('invalid_status');
+        }
+      
+    });
+  
+});
+};
 
 
 

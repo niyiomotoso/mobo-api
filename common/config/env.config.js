@@ -5,6 +5,7 @@ module.exports = {
     "apiEndpoint": "http://localhost:3600",
     "profile_pic_path": "/dp/",
     "project_image_path": "/projectImages/",
+    "group_image_path": "/groupImages/",
     "payment_image_path": "/paymentImages/",
     "jwt_secret": "myS33!!creeeT",
     "jwt_expiration_in_seconds": 36000000,

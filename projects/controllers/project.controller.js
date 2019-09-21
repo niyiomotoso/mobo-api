@@ -84,3 +84,23 @@ exports.makeProjectRequest = (req, res) => {
             });
     }
 };
+
+exports.updateProjectStatus = (req, res) => {
+
+    if(req.params.projectId == undefined   ){
+        res.status(200).send(response.failure("project_id_not_set", "Project ID required"));
+    }
+
+    ProjectModel.updateProjectStatus(req.params.projectId, req.body.status)
+        .then((result) => {
+            
+            if(result == 'project_id_not_found'){
+                res.status(200).send(response.failure("project_id_not_found", "project not found"));
+            }else if(result == 'invalid_status'){
+                res.status(200).send(response.failure("invalid_status", "invalid status"));
+            }else{
+                res.status(200).send(response.success(result, "Updated Successfully"));
+            }
+           
+        });
+};

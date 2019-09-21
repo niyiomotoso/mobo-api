@@ -38,9 +38,11 @@ creditHistorySchema.findById = function (cb) {
 };
 
 exports.addNewTransaction = (transaction)=> {
+    console.log("transaction", transaction);
     return new Promise( function (resolve, reject )  {
     trx = new userCreditHistory(transaction);
     trx.save(function (error, result){
+        console.log("result", result);
         result.status = true;
         resolve(result);
         });

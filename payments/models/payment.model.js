@@ -9,6 +9,8 @@ var smsEventListener = require('../../event_listeners/smsEventListener.js');
 var moment = require('moment');
 const UserPortfolioModel = require('../../users/models/users_portfolio.model');
 const UserModel = require('../../users/models/users.model');
+const LeapPaymentModel = require('../../payments/models/leap_payment.model');
+const assessmentModel = require('../../assessment_questions/models/assessment_question.model');
 mongoose.connect(config.MONGO_URL);
 const Schema = mongoose.Schema;
 
@@ -79,6 +81,8 @@ exports.logPaystackPayment = (paymentData) => {
                         }
                         else if(json.status == true && json.data.status == "success"){
                             var amount = json.data.amount;
+                            //paystack reduce by 2dp
+                            amount = amount.substring(0, amount.length-2);
                             
                             var transaction =  {"amount": amount,
                                                         "fromUserId" : "-",
@@ -98,7 +102,8 @@ exports.logPaystackPayment = (paymentData) => {
                                 payment.updateOne({ _id:savedSession._id},{$set: updateObject},
                                     function (err, result){
                                         console.log("result", result);
-                                        if(result.nModified == 1){     
+                                        if(result.nModified == 1){   
+                                            makeMembershipDeduction(userId, savedSession._id); 
                                             resolve(outcome); 
                                         }
         
@@ -134,6 +139,7 @@ exports.logManualTransferPayment = (paymentData) => {
        if( userData == undefined || userData == null ){
             resolve('user_not_found'); 
        }else{
+       
         var d = new Date();
         var datetime = d.getTime();
         var paymentEvidence = '';
@@ -188,7 +194,8 @@ exports.updateManualTransferPayment = (paymentData) => {
                 payment.updateOne({ _id : data._id}, {$set: updateObject},
                 function (err, result){
 
-                    if(result.nModified == 1){     
+                    if(result.nModified == 1){    
+                        makeMembershipDeduction(data.userId, data._id);
                         resolve(outcome); 
                     }
 
@@ -235,6 +242,42 @@ exports.getLogs = (req)=>{
 
     });
 
+};
+
+function makeMembershipDeduction(userId, transactionId){
+return new Promise((resolve, reject) => {
+    const users = mongoose.model('Users');
+    users.findOne ( {_id: userId}, function( err, userData ){
+        if( userData == undefined || userData == null ){
+             resolve('user_not_found'); 
+        }else if(userData.isMembershipFeePaid != true){
+            assessmentModel.getMemebershipFee(userData._id).then(function(fee){
+            console.log("fee",fee);
+            const UserPortfolio = mongoose.model("UserPortfolio");
+            UserPortfolio.findOne({ userId  : userId},
+                function (err, portfolio){
+                    if(portfolio != null && ( parseFloat(portfolio.balance) - parseFloat(fee) >= 0 ) ){     
+                        //deduct from contributor's balance
+                        var newBalance = parseFloat(portfolio.balance) - parseFloat(fee);
+                        var updateObject = {'balance': newBalance}; 
+                        UserPortfolio.update({ userId  : userId}, {$set: updateObject},
+                            function (err, portfolioUpdateResult){
+                                if(portfolioUpdateResult){  
+                                    userData.isMembershipFeePaid = true;
+                                    let session = {"userId": userId, "amount": fee, "status": "ACTIVE", "transactionType": "MEMBERSHIP FEE", "transactionId": transactionId, "depositorName" : userData.firstName+" "+userData.lastName};
+                                    UserModel.patchUser(userId, userData);
+                                    LeapPaymentModel.logPayment(session);
+                                }
+                                    
+                            });
+                            }
+                                    
+                    });
+                    
+
+    });
+}});
+ });
 };
 
 

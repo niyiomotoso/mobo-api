@@ -11,6 +11,7 @@ const AssessmentsRouter = require('./assessment_questions/routes.config');
 const LoanRouter = require('./loans/routes.config');
  const ProjectRouter = require('./projects/routes.config');
  const PaymentRouter = require('./payments/routes.config');
+ const GroupRouter = require('./groups/routes.config');
 const options = {
     useNewUrlParser: true, 
     reconnectTries: 60, 
@@ -37,6 +38,7 @@ app.use('*/dp',express.static('public/profile_pictures'));
 app.use('*/uploads',express.static('public/uploads'));
 app.use('*/projectImages',express.static('public/project_pictures'));
 app.use('*/paymentImages',express.static('public/payment_pictures'));
+app.use('*/groupImages',express.static('public/group_pictures'));
 
 AuthorizationRouter.routesConfig(app);
 UsersRouter.routesConfig(app);
@@ -44,6 +46,7 @@ AssessmentsRouter.routesConfig(app);
 LoanRouter.routesConfig(app);
 ProjectRouter.routesConfig(app);
 PaymentRouter.routesConfig(app);
+GroupRouter.routesConfig(app);
 // MongoClient.connect(url, options, (err, database) => {
 //     if (err) {
 //       console.log(`FATAL MONGODB CONNECTION ERROR: ${err}:${err.stack}`)

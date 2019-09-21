@@ -22,6 +22,7 @@ const userSchema = new Schema({
     dateOfBirth: String,
     activationCode:String,
     status: String,
+    isMembershipFeePaid: Boolean
 
 }, {timestamps: true});
 

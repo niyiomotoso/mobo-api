@@ -13,6 +13,7 @@ const response = require('../../common/jsonResponse');
 // };
 
 exports.logPaystackPayment = (req, res) => {
+    console.log(req);
     if(req.body.userId == undefined || req.body.reference == undefined || req.body.amount == undefined ){
         res.status(200).send(response.failure("incomplete_params", "incomplete parameter set"));
     }
