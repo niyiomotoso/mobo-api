@@ -26,6 +26,10 @@ exports.routesConfig = function (app) {
         GroupController.addUsersToGroup
     ]);
 
+    app.delete('/groups/remove_users_from_group', [
+        GroupController.removeUsersFromGroup
+    ]);
+
     app.get('/groups/:userId/get_user_groups', [ 
        GroupController.getUserGroups
     ]);

@@ -61,8 +61,11 @@ exports.makeProjectRequest = (req, res) => {
     else if(req.body.projectType == undefined  ){
         res.status(200).send(response.failure("project_type_not_set", "project type not set"));
     }
-    else if(req.body.projectType  != "PRIVATE" && req.body.projectType  != "PUBLIC"){
+    else if(req.body.projectType  != "PRIVATE" && req.body.projectType  != "PUBLIC" && req.body.projectType  != "GROUP"){
         res.status(200).send(response.failure("invalid_project_type", "invalid project type"));
+    }
+    else if( req.body.projectType  == "GROUP" && (req.body.groupId == undefined ||  req.body.groupId == null ) ){
+        res.status(200).send(response.failure("groupid_not_set", "Group ID must be set for group projects"));
     }
     else{
         if(req.body.projectType  == "PUBLIC"){
@@ -76,6 +79,8 @@ exports.makeProjectRequest = (req, res) => {
             .then((result) => {
                 if(result == 'limit_exceeded'){
                     res.status(200).send(response.failure("limit_exceeded", "Project limit exceeded"));
+                }else if(result == 'group_not_found'){
+                    res.status(200).send(response.failure("group_not_found", "Group not found"));
                 }
                 else{
                 res.status(200).send(response.success(result, "Loaded Successfully"));

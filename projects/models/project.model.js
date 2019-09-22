@@ -23,6 +23,7 @@ const projectSessionSchema = new Schema({
     targetMode: String,
     projectType: String,
     coverImage: String,
+    groupId: String,
     contributions: Array,
     withdrawals: Array
     
@@ -80,6 +81,7 @@ exports.makeProjectRequest = (projectData)=> {
     var targetMode = projectData.targetMode;
     var targetTime = projectData.targetTime;
     var projectName = projectData.projectName;
+    var groupId = projectData.groupId;
     var status =  'ACTIVE';
     var contributions = [];
     var withdrawals = [];
@@ -92,23 +94,35 @@ exports.makeProjectRequest = (projectData)=> {
     let session = {"userId": userId, "targetAmount": targetAmount, "targetMode":
         targetMode, "targetTime" : targetTime, "totalContributedAmount": totalContributedAmount,
         "status": status, "contributions": contributions, "withdrawals": withdrawals, "projectName": projectName,
-        "projectType": projectType, "coverImage" : coverImage
+        "projectType": projectType, "coverImage" : coverImage, "groupId": groupId
      };
   //   var maximumAllowed =  this.getMaximumProject(userId);
 
     const project = new projectSession(session);
-    // if( parseFloat(maximumAllowed) < parseFloat(targetAmount) ){
-    //     return 'limit_exceeded';
-    // }else{
+ 
     return new Promise ( ( resolve, reject) => {
+        if(groupId != undefined && groupId != null){
+            const groupSession = mongoose.model("groupSession");
+            groupSession.findById(groupId, function (err, group) {
+                if(group == null ){
+                    resolve("group_not_found");         
+                }
+                else{
+                    project.save(
+                        function(err, savedSession){
+                            resolve(savedSession);
+                        }
+                    );
+                }
+            });
+        }else{
         project.save(
             function(err, savedSession){
                 resolve(savedSession);
             }
         );
         }
-    )
-
+    });
 };
 
 

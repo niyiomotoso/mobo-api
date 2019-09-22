@@ -45,7 +45,7 @@ const paymentSession = mongoose.model('paymentSession', paymentSessionSchema);
 exports.logPaystackPayment = (paymentData) => {
     var userId = paymentData.userId;
     var reference = paymentData.reference;
-    var pending_amount = paymentData.amount;
+    //var pending_amount = paymentData.amount;
 
     const users = mongoose.model('Users');
     return new Promise( (resolve, reject)=> {
@@ -59,7 +59,7 @@ exports.logPaystackPayment = (paymentData) => {
                 resolve('existing_transaction');
             }else{
        
-        let session = {"userId": userId, "reference": reference, "amount": pending_amount, "status": "PENDING", "channel": "PAYSTACK_ONLINE"};
+        let session = {"userId": userId, "reference": reference, "amount": "", "status": "PENDING", "channel": "PAYSTACK_ONLINE"};
         const payment = new paymentSession(session);
         payment.save(
                 function(err, savedSession){  
@@ -82,6 +82,7 @@ exports.logPaystackPayment = (paymentData) => {
                         else if(json.status == true && json.data.status == "success"){
                             var amount = json.data.amount;
                             //paystack reduce by 2dp
+                            amount = new String(amount);
                             amount = amount.substring(0, amount.length-2);
                             
                             var transaction =  {"amount": amount,
@@ -98,8 +99,8 @@ exports.logPaystackPayment = (paymentData) => {
                             //not working
                             const payment = mongoose.model('paymentSession');
                            
-                            var updateObject = {"status": "APPROVED"}; 
-                                payment.updateOne({ _id:savedSession._id},{$set: updateObject},
+                            var updateObject = {"status": "APPROVED", "amount": amount}; 
+                                payment.updateMany({ _id:savedSession._id},{$set: updateObject},
                                     function (err, result){
                                         console.log("result", result);
                                         if(result.nModified == 1){   

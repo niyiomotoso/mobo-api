@@ -48,10 +48,11 @@ exports.makeGroupRequest = (groupData)=> {
     if(groupData.groupImage != undefined && groupData.groupImage != null){
         groupImage = config.group_image_path+groupData.groupImage;
     }
-
+    var dateTime =  Date.now();
+    dateTime = moment(dateTime).format("YYYY-MM-DD HH:mm:ss");
     let session = {"name": name, "creatorUserId": creatorUserId, "description":
-    description,"status": status,  "groupImage" : groupImage
-     };
+        description,"status": status,  "groupImage" : groupImage, "groupUsers": [{ "userId": creatorUserId,  "createdAt": dateTime}]
+        };
  
     const group = new groupSession(session);
   
@@ -69,24 +70,34 @@ exports.makeGroupRequest = (groupData)=> {
 
 exports.getUserGroups = (req)=>{
     var userId = req.params.userId;
-    var groupType = req.query.groupType;
-
+    
     return new Promise( (resolve, reject)=> {
 
-        if(groupType != undefined){
-            groupSession.find ({"userId" : userId, "groupType": groupType}, function( err, result ){
-                resolve(result);
+        groupSession.find({'groupUsers.userId': userId}, function(err, result) {
+            result.forEach(element => {
+                console.log(element.groupUsers);
             });
-        }else{
-            groupSession.find ({"userId" : userId}, function( err, result ){
-                resolve(result);
-            });
-        }
+        });
 
-
+        
+       
     });
 
 };
+
+function getUserDetailsFromArray(field_to_search, fieldArray){
+    
+    return new Promise((resolve, reject) => {
+            const Users = mongoose.model('Users');
+            userDArray = [];    
+            field_to_search = field_to_search.toString();     
+            Users.find({ 'phone' : { $in: fieldArray } }, 'firstName lastName phone'  )
+             .exec(function(err, userDArray) {
+                resolve(userDArray);
+            });
+           
+    });
+}
 
 exports.addUsersToGroup = (groupData)=>{
     return new Promise( (resolve, reject)=> {
@@ -146,6 +157,60 @@ exports.addUsersToGroup = (groupData)=>{
 
 };
 
+
+exports.removeUsersFromGroup = (groupData)=>{
+    return new Promise( (resolve, reject)=> {
+        var groupId = groupData.groupId;
+        var userIds = groupData.userIds;
+        
+    
+        groupSession.findOne ({ _id : groupId}, function( err, group ){
+            if( group == undefined || group == null ){
+                resolve('group_not_found'); 
+            }
+       else{
+        if(Array.isArray(userIds)){
+            console.log("userIds", userIds);
+            userIds.forEach(userId => {
+            
+           
+            const users = mongoose.model('Users');
+            users.findOne ({_id : userId}, function( err, userData ){
+            if( userData == undefined || userData == null ){
+                //user not exist
+            }  
+            else{
+                let groupUsers = group.groupUsers;      
+                let obj = groupUsers.find(o => o.userId  == userId);
+                if(obj != undefined ){
+                    groupUsers.splice(groupUsers.indexOf(obj), 1);                               
+                }
+                var updateObject = {'groupUsers': groupUsers}; 
+
+                groupSession.update({ _id  : groupId}, {$set: updateObject},
+                    function (err, result){
+                        if(result){   
+                           
+                            //loanSession.findOne({_id : loanId}, function(err, result){     
+                           // resolve({ "loanId": loanId, "amountRequested": result.amountRequested, "totalVouchAmount": result.totalVouchAmount});
+                        //}); 
+                        }
+                            
+                    });
+
+
+     
+            }
+        });
+    });
+
+    resolve(1);  
+    }
+    }
+    });
+    });
+
+};
 
 
 

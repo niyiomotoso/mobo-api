@@ -38,6 +38,24 @@ exports.addUsersToGroup = (req, res) => {
     }
 };
 
+exports.removeUsersFromGroup = (req, res) => {
+    if(req.body.userIds == undefined || req.body.groupId  == undefined){
+        res.status(200).send(response.failure("incomplete_params" ,"group ID and Users must be selected"));
+    }
+    else{
+        GroupModel.removeUsersFromGroup(req.body)
+            .then((result) => {
+                if(result == 'group_not_found'){
+                    res.status(200).send(response.failure("group_not_found", "Group session not found"));
+                }
+                else{
+                res.status(200).send(response.success(result, "Loaded Successfully"));
+            }
+            
+            });
+    }
+};
+
 exports.makeGroupRequest = (req, res) => {
 
     if(req.body.name == undefined || req.body.description  == undefined ){
