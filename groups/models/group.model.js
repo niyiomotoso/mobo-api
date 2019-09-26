@@ -73,10 +73,30 @@ exports.getUserGroups = (req)=>{
     
     return new Promise( (resolve, reject)=> {
 
-        groupSession.find({'groupUsers.userId': userId}, function(err, result) {
-            result.forEach(element => {
-                console.log(element.groupUsers);
+        groupSession.find({'groupUsers.userId': userId}, function(err, groups) {
+           
+            groups.forEach((group, group_index )=> {
+                var user_ids = Array();
+                
+                if(Array.isArray(group.groupUsers)){
+                    group.groupUsers.forEach(user_data =>{
+                     
+                        user_ids.push(user_data.userId);
+                    });
+                }
+            
+                
+                getUserDetailsFromArray('_id', user_ids).then(function(usersDetails){
+                   
+                    groups[group_index].usersDetails = usersDetails;
+                });
+
+
+                
             });
+            console.log("groups ", groups);
+
+            
         });
 
         
@@ -91,7 +111,7 @@ function getUserDetailsFromArray(field_to_search, fieldArray){
             const Users = mongoose.model('Users');
             userDArray = [];    
             field_to_search = field_to_search.toString();     
-            Users.find({ 'phone' : { $in: fieldArray } }, 'firstName lastName phone'  )
+            Users.find({ '_id' : { $in: fieldArray } }, 'firstName lastName phone'  )
              .exec(function(err, userDArray) {
                 resolve(userDArray);
             });

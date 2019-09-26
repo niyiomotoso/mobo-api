@@ -43,6 +43,36 @@ exports.login = (req, res) => {
     }
 };
 
+exports.refresh = (req, res) => {
+    try {
+       
+        //res.status(200).send(response.success({accessToken: token, refreshToken: refresh_token}, "Login Success"));
+        UserPortfolioModel.getUserPartners(req.params.userId)
+        .then((user_partners) => {
+            
+            UserPortfolioModel.getUserReferrals(req.params.userId)
+            .then((user_referrals) => {
+                
+                UserPortfolioModel.getUserWalletBalance(req.params.userId)
+                .then((balance) => {
+                    UserAssessment.findByUserId(req.params.userId)
+                        .then((assessment) => {
+                            
+                            res.status(200).send(response.success({ 
+                            balance: balance, partners: user_partners, referrals: user_referrals, bio: req.body, assessment_question: assessment}, "Refresh Success"));
+            
+                        });
+                });
+            
+            });
+        
+        });
+
+    } catch (err) {
+        res.status(500).send({errors: err});
+    }
+};
+
 exports.refresh_token = (req, res) => {
     try {
         req.body = req.jwt;

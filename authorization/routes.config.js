@@ -9,6 +9,10 @@ exports.routesConfig = function (app) {
         AuthorizationController.login
     ]);
 
+    app.get('/auth/:userId/refresh', [
+        AuthorizationController.refresh
+    ]);
+
     app.post('/auth/refresh', [
         AuthValidationMiddleware.validJWTNeeded,
         AuthValidationMiddleware.verifyRefreshBodyField,

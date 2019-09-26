@@ -154,14 +154,20 @@ exports.addContributionToProject = (projectData)=>{
         var amount = projectData.amount;
 
         const UserPortfolio = mongoose.model('UserPortfolio');
-
-        UserPortfolio.findOne ({ userId : userId}, function( err, portfolio ){
-            if( portfolio == undefined || portfolio == null ){
+        const User = mongoose.model('Users');
+        User.findOne ({ _id : userId}, function( err, userDetials ){
+        if( userDetials == undefined || userDetials == null ){
                 resolve('user_not_found'); 
             }
-            else if( parseFloat(portfolio.balance) < parseFloat(amount) ){
-                resolve('contributor_insufficient_balance'); 
-            }
+
+        else{
+            UserPortfolio.findOne ({ userId : userId}, function( err, portfolio ){
+                if( portfolio == undefined || portfolio == null ){
+                    resolve('user_not_found'); 
+                }
+                else if( parseFloat(portfolio.balance) < parseFloat(amount) ){
+                    resolve('contributor_insufficient_balance'); 
+                }
        else{
         
         projectSession.findOne ({_id : projectId}, function( err, projectData ){
@@ -191,7 +197,7 @@ exports.addContributionToProject = (projectData)=>{
                 //    contributions.push({ "userId": userId, "amount": amount, "status": 1, "createdAt": dateTime});                   
                 // }else{
             var totalContributedAmount =  totalContributedAmountAfterNewContribution;
-            contributions.push({ "userId": userId, "amount": amount, "status": 1, "createdAt": dateTime});     
+            contributions.push({ "userId": userId, "amount": amount, "status": 1, "createdAt": dateTime, 'name': userDetials.firstName+" "+userDetials.lastName });     
                                             
                     //}
 
@@ -222,6 +228,7 @@ exports.addContributionToProject = (projectData)=>{
         });
     }
     });
+         } });
     });
 
 };
