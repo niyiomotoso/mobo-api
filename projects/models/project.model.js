@@ -24,6 +24,7 @@ const projectSessionSchema = new Schema({
     projectType: String,
     coverImage: String,
     groupId: String,
+    description: String,
     contributions: Array,
     withdrawals: Array,
     owner: Object,
@@ -82,6 +83,7 @@ exports.makeProjectRequest = (projectData)=> {
     var totalContributedAmount  = 0;
     var targetMode = projectData.targetMode;
     var targetTime = projectData.targetTime;
+    var description = projectData.description;
     var projectName = projectData.projectName;
     var groupId = projectData.groupId;
     var status =  'ACTIVE';
@@ -93,7 +95,7 @@ exports.makeProjectRequest = (projectData)=> {
         coverImage = config.project_image_path+projectData.coverImage;
     }
 
-    let session = {"userId": userId, "targetAmount": targetAmount, "targetMode":
+    let session = {"userId": userId, "targetAmount": targetAmount, "description": description, "targetMode":
         targetMode, "targetTime" : targetTime, "totalContributedAmount": totalContributedAmount,
         "status": status, "contributions": contributions, "withdrawals": withdrawals, "projectName": projectName,
         "projectType": projectType, "coverImage" : coverImage, "groupId": groupId
