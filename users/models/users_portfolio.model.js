@@ -309,7 +309,7 @@ exports.addToUserPartners = (userId, partnerData ) => {
                                 var dateTime =  Date.now();
                                 dateTime = moment(dateTime).format("YYYY-MM-DD HH:mm:ss");
 
-                                currentPartners.push({ "userId": result._id, "phone": element, "status": 'PENDING', "createdAt": dateTime});
+                                currentPartners.push({ "userId": result._id, "phone": element, "status": 'PENDING', "createdAt": dateTime, "name": result.firstName+" "+result.lastName, "profilePicPath": result.profilePicPath});
                                 
                                 //commonEmitter.emit('new_financial_partner_sms_event', element, user_fullname);
 
@@ -427,7 +427,7 @@ function getUserDetailsFromArray(field_to_search, fieldArray){
             const Users = mongoose.model('Users');
             userDArray = [];    
             field_to_search = field_to_search.toString();     
-            Users.find({ 'phone' : { $in: fieldArray } }, 'firstName lastName phone'  )
+            Users.find({ 'phone' : { $in: fieldArray } }, 'firstName lastName phone profilePicPath'  )
              .exec(function(err, userDArray) {
                 resolve(userDArray);
             });
@@ -493,6 +493,7 @@ exports.getUserPartners  = (userId)=>{
                 "firstName": element.firstName,
                 "lastName": element.lastName,
                 "phone": element.phone,
+                "profilePicPath": element.profilePicPath,
                 "id": element.id,
                 "status": status
             };

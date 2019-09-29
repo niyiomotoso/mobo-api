@@ -5,6 +5,7 @@ const uuid = require('node-uuid');
 const response = require('../../common/jsonResponse');
 const UserPortfolioModel = require('../../users/models/users_portfolio.model');
 const UserModel = require('../../users/models/users.model');
+const ProjectModel = require('../../projects/models/project.model');
 const UserAssessment = require('../../assessment_questions/models/assessment_question.model');
 
 exports.login = (req, res) => {
@@ -16,13 +17,25 @@ exports.login = (req, res) => {
         let token = jwt.sign(req.body, jwtSecret);
         let b = new Buffer(hash);
         let refresh_token = b.toString('base64');
-        
+        let custom_req = {};
         //res.status(200).send(response.success({accessToken: token, refreshToken: refresh_token}, "Login Success"));
         UserPortfolioModel.getUserPartners(req.body.userId)
         .then((user_partners) => {
             
             UserPortfolioModel.getUserReferrals(req.body.userId)
             .then((user_referrals) => {
+                 custom_req = {"params": {"userId": req.body.userId}, "query": {"projectType": "PRIVATE"}  }
+    
+                ProjectModel.getUserProjects(custom_req)
+                .then((private_projects) => {
+                     custom_req = {"params": {"userId": req.body.userId}, "query": {"projectType": "PUBLIC"}  }
+    
+                    ProjectModel.getUserProjects(custom_req)
+                    .then((public_projects) => {
+                        custom_req = {"params": {"userId": req.body.userId}, "query": {"projectType": "GROUP"}  }
+    
+                        ProjectModel.getUserProjects(custom_req)
+                        .then((group_projects) => {
                 
                 UserPortfolioModel.getUserWalletBalance(req.body.userId)
                 .then((balance) => {
@@ -32,12 +45,17 @@ exports.login = (req, res) => {
                         newobject = req.body;
                         newobject["balance"] = balance;
                             res.status(200).send(response.success({accessToken: token, refreshToken: refresh_token, 
-                            balance: balance, partners: user_partners, referrals: user_referrals, bio: newobject, assessment_question: assessment}, "Login Success"));
+                            balance: balance, partners: user_partners, referrals: user_referrals, bio: newobject, assessment_question: assessment,
+                        private_projects: private_projects, public_projects: public_projects, group_projects: group_projects}, "Login Success"));
             
                         });
                 });
             
             });
+        });
+    });
+
+});
         
         });
 
@@ -58,6 +76,18 @@ exports.refresh = (req, res) => {
             
             UserPortfolioModel.getUserReferrals(req.params.userId)
             .then((user_referrals) => {
+                custom_req = {"params": {"userId": req.params.userId}, "query": {"projectType": "PRIVATE"}  }
+    
+                ProjectModel.getUserProjects(custom_req)
+                .then((private_projects) => {
+                     custom_req = {"params": {"userId": req.params.userId}, "query": {"projectType": "PUBLIC"}  }
+    
+                    ProjectModel.getUserProjects(custom_req)
+                    .then((public_projects) => {
+                        custom_req = {"params": {"userId": req.params.userId}, "query": {"projectType": "GROUP"}  }
+    
+                        ProjectModel.getUserProjects(custom_req)
+                        .then((group_projects) => {
                 
                 UserPortfolioModel.getUserWalletBalance(req.params.userId)
                 .then((balance) => {
@@ -65,7 +95,8 @@ exports.refresh = (req, res) => {
                         .then((assessment) => {
                             user.balance = balance;
                             res.status(200).send(response.success({ 
-                            balance: balance, partners: user_partners, referrals: user_referrals, bio: user, assessment_question: assessment}, "Refresh Success"));
+                            balance: balance, partners: user_partners, referrals: user_referrals, bio: user, assessment_question: assessment,
+                            private_projects: private_projects, public_projects: public_projects, group_projects: group_projects}, "Refresh Success"));
             
                         });
                 });
@@ -73,6 +104,11 @@ exports.refresh = (req, res) => {
             });
         
         });
+    });
+            
+});
+
+});
     });
 
     } catch (err) {
