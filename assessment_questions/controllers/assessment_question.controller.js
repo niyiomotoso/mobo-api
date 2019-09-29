@@ -63,7 +63,12 @@ exports.getMemebershipFee = (req, res) => {
                 res.status(200).send(response.failure("user_not_found", "user not found"));
            
             }else{
-            res.status(200).send(response.success(result, "Loaded Successfully"));
+               let result2 = {"students" : 899.56,
+
+                "employee": 1699.89,
+                
+                "business_owner" : 3200.89};
+            res.status(200).send(response.success(result2, "Loaded Successfully"));
         }
         });
 };

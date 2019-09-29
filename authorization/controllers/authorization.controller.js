@@ -28,9 +28,11 @@ exports.login = (req, res) => {
                 .then((balance) => {
                     UserAssessment.findByUserId(req.body.userId)
                         .then((assessment) => {
-                            
+                        var newobject = {};
+                        newobject = req.body;
+                        newobject["balance"] = balance;
                             res.status(200).send(response.success({accessToken: token, refreshToken: refresh_token, 
-                            balance: balance, partners: user_partners, referrals: user_referrals, bio: req.body, assessment_question: assessment}, "Login Success"));
+                            balance: balance, partners: user_partners, referrals: user_referrals, bio: newobject, assessment_question: assessment}, "Login Success"));
             
                         });
                 });
@@ -61,7 +63,7 @@ exports.refresh = (req, res) => {
                 .then((balance) => {
                     UserAssessment.findByUserId(req.params.userId)
                         .then((assessment) => {
-                            
+                            user.balance = balance;
                             res.status(200).send(response.success({ 
                             balance: balance, partners: user_partners, referrals: user_referrals, bio: user, assessment_question: assessment}, "Refresh Success"));
             
