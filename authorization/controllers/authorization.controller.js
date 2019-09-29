@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const uuid = require('node-uuid');
 const response = require('../../common/jsonResponse');
 const UserPortfolioModel = require('../../users/models/users_portfolio.model');
+const UserModel = require('../../users/models/users.model');
 const UserAssessment = require('../../assessment_questions/models/assessment_question.model');
 
 exports.login = (req, res) => {
@@ -47,6 +48,9 @@ exports.refresh = (req, res) => {
     try {
        
         //res.status(200).send(response.success({accessToken: token, refreshToken: refresh_token}, "Login Success"));
+        UserModel.findById(req.params.userId)
+        .then((user) => {
+            delete user.password;
         UserPortfolioModel.getUserPartners(req.params.userId)
         .then((user_partners) => {
             
@@ -59,7 +63,7 @@ exports.refresh = (req, res) => {
                         .then((assessment) => {
                             
                             res.status(200).send(response.success({ 
-                            balance: balance, partners: user_partners, referrals: user_referrals, bio: req.body, assessment_question: assessment}, "Refresh Success"));
+                            balance: balance, partners: user_partners, referrals: user_referrals, bio: user, assessment_question: assessment}, "Refresh Success"));
             
                         });
                 });
@@ -67,6 +71,7 @@ exports.refresh = (req, res) => {
             });
         
         });
+    });
 
     } catch (err) {
         res.status(500).send({errors: err});

@@ -63,7 +63,9 @@ exports.getMaximumLoan = (userId) => {
     });
      
 };
+//I am addgin this useles code for now 
 
+///rjgrn
 exports.makeLoanRequest = (loanData)=> {
     var userId=  loanData.userId;
     var amountRequested =  loanData.amountRequested;

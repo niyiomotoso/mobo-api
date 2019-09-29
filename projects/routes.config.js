@@ -29,6 +29,9 @@ exports.routesConfig = function (app) {
     app.get('/projects/:userId/get_user_projects', [ 
        ProjectController.getUserProjects
     ]);
+    app.get('/projects/:projectId/get_project_details', [ 
+        ProjectController.getProjectDetails
+     ]);
 
     app.patch('/projects/:projectId/update_project_status', [ 
         ProjectController.updateProjectStatus

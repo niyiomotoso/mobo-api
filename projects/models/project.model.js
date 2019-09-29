@@ -25,7 +25,9 @@ const projectSessionSchema = new Schema({
     coverImage: String,
     groupId: String,
     contributions: Array,
-    withdrawals: Array
+    withdrawals: Array,
+    owner: Object,
+    
     
 }, {timestamps: true});
 
@@ -147,6 +149,63 @@ exports.getUserProjects = (req)=>{
 
 };
 
+
+exports.getProjectDetails = (projectId)=>{
+    
+    return new Promise( (resolve, reject)=> {
+
+            projectSession.findOne ({_id : projectId}, function( err, project ){
+                if(project == null || project == undefined){
+                    resolve("project_id_not_found");
+                }else{
+                    const user = mongoose.model("Users");
+                    user.findOne({_id : project.userId}, function(err, creator){
+                     
+                    if(creator == undefined || creator == null){
+                        resolve('owner_not_found');
+                    }
+                  
+                if((project.contributions != undefined && project.contributions.length> 0   )){
+                    var counter = 0;
+                    project.contributions.forEach((contributor,index) => {
+                        
+                        user.findOne({_id: contributor.userId}, function(err, userDetials){
+                            counter++;
+                            if(userDetials != null && userDetials != undefined){
+                                contributor.name = userDetials.firstName+ " "+userDetials.lastName;
+                                contributor.profilePicPath = userDetials.profilePicPath;
+                                project.contributions[index] = contributor;
+                           }else{
+                            project.contributions[index] = null;
+                           }
+                           
+                           if(counter == project.contributions.length){
+                               var newProjectObject = project;
+                               //delete creator.password;
+                               newProjectObject.owner = creator;
+                               //newProjectObject.ownerProfilePicPath = creator.profilePicPath;
+                                resolve(newProjectObject);
+                           }
+                        });
+                       // counter
+                    });
+                }else{
+                    var newProjectObject = project;
+                  
+                    newProjectObject.owner = creator;
+                    //newProjectObject.ownerProfilePicPath = creator.profilePicPath;
+                    resolve(newProjectObject);
+                    
+                }
+            });
+            }
+            });
+        
+        });
+        
+
+};
+
 exports.addContributionToProject = (projectData)=>{
     return new Promise( (resolve, reject)=> {
         var projectId = projectData.projectId;
@@ -197,7 +256,7 @@ exports.addContributionToProject = (projectData)=>{
                 //    contributions.push({ "userId": userId, "amount": amount, "status": 1, "createdAt": dateTime});                   
                 // }else{
             var totalContributedAmount =  totalContributedAmountAfterNewContribution;
-            contributions.push({ "userId": userId, "amount": amount, "status": 1, "createdAt": dateTime, 'name': userDetials.firstName+" "+userDetials.lastName });     
+            contributions.push({ "userId": userId, "amount": amount, "status": 1, "createdAt": dateTime, 'name': userDetials.firstName+" "+userDetials.lastName, "profilePicPath": userDetials.profilePicPath });     
                                             
                     //}
 
@@ -213,7 +272,7 @@ exports.addContributionToProject = (projectData)=>{
                                 function (err, portfolioUpdateResult){
                                     if(portfolioUpdateResult){  
                                         projectSession.findOne({_id : projectId}, function(err, result){     
-                                        resolve({ "projectId": projectId, "targetAmount": result.targetAmount, "totalContributedAmount": result.totalContributedAmount});
+                                        resolve({ "projectId": projectId, "targetAmount": result.targetAmount, "totalContributedAmount": result.totalContributedAmount, "walletBalance": newBalance });
                         }); 
                         }
                             

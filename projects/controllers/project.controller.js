@@ -19,6 +19,27 @@ exports.getUserProjects = (req, res) => {
         });
 };
 
+exports.getProjectDetails = (req, res) => {
+    ProjectModel.getProjectDetails(req.params.projectId)
+        .then((result) => {
+            if(result == 'project_id_not_found'){
+                res.status(200).send(response.failure("project_not_found", "Project session not found"));
+            }else if(result == 'owner_not_found'){
+                res.status(200).send(response.failure("owner_not_found", "Owner not found"));
+            }
+            
+            else{
+                if(result.owner.password != undefined){
+                delete result.owner.password;
+            }
+            res.status(200).send(response.success(result, "Loaded Successfully"));
+        }
+        
+        
+        });
+};
+
+
 
 exports.addContributionToProject = (req, res) => {
     if(req.body.amount == undefined || req.body.projectId  == undefined  || req.body.contributorUserId  == undefined  ){
