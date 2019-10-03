@@ -18,6 +18,16 @@ exports.getUserGroups = (req, res) => {
         
         });
 };
+exports.getUserGroupsByPhone = (req, res) => {
+    GroupModel.getUserGroupsByPhone(req)
+        .then((result) => {
+            if(result == 'user_not_found'){
+                res.status(200).send(response.failure("user_not_found", "User not found"));
+            }
+            res.status(200).send(response.success(result, "Loaded Successfully"));
+        
+        });
+};
 
 
 exports.addUsersToGroup = (req, res) => {

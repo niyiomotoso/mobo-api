@@ -33,7 +33,7 @@ exports.routesConfig = function (app) {
         ProjectController.getProjectDetails
      ]);
 
-    app.patch('/projects/:projectId/update_project_status', [ 
+    app.post('/projects/:projectId/update_project_status', [ 
         ProjectController.updateProjectStatus
      ]);
     

@@ -105,6 +105,49 @@ exports.getUserGroups = (req)=>{
 
 };
 
+exports.getUserGroupsByPhone = (req)=>{
+    var phone = req.params.phone;
+    
+    return new Promise( (resolve, reject)=> {
+        const users = mongoose.model("Users");
+        users.findOne ( { phone : phone}, function( err, portfolio ){
+            if( portfolio == undefined || portfolio == null ){
+                 resolve('user_not_found'); 
+            }else{
+                var userId  = portfolio._id;
+        groupSession.find({'groupUsers.userId': userId}, function(err, groups) {
+           
+            groups.forEach((group, group_index )=> {
+                var user_ids = Array();
+                
+                if(Array.isArray(group.groupUsers)){
+                    group.groupUsers.forEach(user_data =>{
+                     
+                        user_ids.push(user_data.userId);
+                    });
+                }
+            
+                
+                getUserDetailsFromArray('_id', user_ids).then(function(usersDetails){
+                   
+                    groups[group_index].usersDetails = usersDetails;
+                });
+
+
+                
+            });
+            console.log("groups ", groups);
+
+            
+        });}
+    });
+        
+       
+    });
+    
+
+};
+
 function getUserDetailsFromArray(field_to_search, fieldArray){
     
     return new Promise((resolve, reject) => {

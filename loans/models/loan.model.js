@@ -44,18 +44,24 @@ exports.getMaximumLoan = (userId) => {
         UserModel.findById(userId).then((result) => {
         if(result == null || result.length == 0)
         resolve(null);
-        else{            
+        else{   
+
+            UserPortfolioModel.getUserWalletBalance(userId)
+            .then((balance) => {      
+                if(balance == null){
+                    balance = 0;
+                }
             UserPortfolioModel.getUserPartnersWalletDetails(userId)
             .then((user_partners) => {
                 var totalAvailable = 0;
-                
                 user_partners.forEach(element => {
                 totalAvailable = totalAvailable + parseFloat(element.balance);
 
                 });
-                console.log( "console.log(totalAvailable);", totalAvailable);
+                console.log( "console.log(totalAvailable);", totalAvailable + parseFloat(balance));
                 resolve(totalAvailable);
             });
+        });
         }
        
     });

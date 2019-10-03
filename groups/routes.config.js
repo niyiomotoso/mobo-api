@@ -33,7 +33,10 @@ exports.routesConfig = function (app) {
     app.get('/groups/:userId/get_user_groups', [ 
        GroupController.getUserGroups
     ]);
-
+    app.get('/groups/:phone/get_user_groups_by_phone', [ 
+        GroupController.getUserGroupsByPhone
+     ]);
+    
     app.patch('/groups/:groupId/update_group_details', upload.single('groupImage'), [ 
         GroupController.updateGroupDetails
      ]);
