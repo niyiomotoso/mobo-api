@@ -68,6 +68,71 @@ exports.makeGroupRequest = (groupData)=> {
 };
 
 
+exports.getGroupDetails = (groupId)=>{
+  
+    return new Promise( (resolve, reject)=> {
+       
+                groupSession.findOne({'_id': groupId}, function(err, group) {
+                    if( group == null || group.length == 0 ){
+                        resolve('group_not_found');
+                    }else{
+                            var user_ids = Array();
+                            if( group != null && Array.isArray(group.groupUsers) ){
+                                group.groupUsers.forEach(user_data =>{
+                                    user_ids.push(user_data.userId);
+                                });
+                            }
+                        
+                        group = group.toObject();
+                        getUserDetailsFromArray('_id', user_ids).then(function(usersDetails){
+                        
+                            group.groupUsers = usersDetails;
+                            const projects = mongoose.model("projectSession");
+                            projects.find({'groupId':  groupId }, function (err, groupProjects){
+                                group.projects = groupProjects;
+                                resolve(group);
+                            });
+                        
+});
+}  
+    });
+});
+
+};
+
+function getGroupDetails(groupId){
+  
+    return new Promise( (resolve, reject)=> {
+       
+                groupSession.findOne({'_id': groupId}, function(err, group) {
+                    if( group == null || group.length == 0 ){
+                        resolve('group_not_found');
+                    }else{
+                            var user_ids = Array();
+                            if( group != null && Array.isArray(group.groupUsers) ){
+                                group.groupUsers.forEach(user_data =>{
+                                    user_ids.push(user_data.userId);
+                                });
+                            }
+                        
+                        group = group.toObject();
+                        getUserDetailsFromArray('_id', user_ids).then(function(usersDetails){
+                        
+                            group.groupUsers = usersDetails;
+                            const projects = mongoose.model("projectSession");
+                            projects.find({'groupId':  groupId }, function (err, groupProjects){
+                                group.projects = groupProjects;
+                                resolve(group);
+                            });
+                                
+                        
+});
+}  
+    });
+});
+
+};
+
 exports.getUserGroups = (req)=>{
     var userId = req.params.userId;
     
@@ -96,12 +161,19 @@ exports.getUserGroups = (req)=>{
                         
                         getUserDetailsFromArray('_id', user_ids).then(function(usersDetails){
                         
+                            
                             groups[group_index].groupUsers = usersDetails;
-                            counter++;
-                            if(counter == groups.length){
-                                console.log("groups ", groups);
-                                resolve(groups);
-                            }
+
+                            const projects = mongoose.model("projectSession");
+                            projects.find({'groupId':  String(group._id) }, function (err, groupProjects){
+                                groups[group_index].projects = groupProjects;
+                                counter++;
+                                if(counter == groups.length){
+                                    console.log("groups ", groups);
+                                    resolve(groups);
+                                }
+
+                            });
 
                 });
 
@@ -147,11 +219,19 @@ exports.getUserGroupsByPhone = (req)=>{
                         getUserDetailsFromArray('_id', user_ids).then(function(usersDetails){
                         
                             groups[group_index].groupUsers = usersDetails;
-                            counter++;
-                            if(counter == groups.length){
-                                console.log("groups ", groups);
-                                resolve(groups);
-                            }
+
+                            const projects = mongoose.model("projectSession");
+                            projects.find({'groupId':  String(group._id) }, function (err, groupProjects){
+                                groups[group_index].projects = groupProjects;
+                                counter++;
+                                if(counter == groups.length){
+                                    console.log("groups ", groups);
+                                    resolve(groups);
+                                }
+
+                            });
+
+                           
 
                 });
 
@@ -182,7 +262,7 @@ function getUserDetailsFromArray(field_to_search, fieldArray){
 exports.addUsersToGroup = (groupData)=>{
     return new Promise( (resolve, reject)=> {
         var groupId = groupData.groupId;
-        var userIds = groupData.userIds;
+        var phones = groupData.phones;
         
     
         groupSession.findOne ({ _id : groupId}, function( err, group ){
@@ -190,17 +270,23 @@ exports.addUsersToGroup = (groupData)=>{
                 resolve('group_not_found'); 
             }
        else{
-        if(Array.isArray(userIds)){
-            console.log("userIds", userIds);
-            userIds.forEach(userId => {
+        if(Array.isArray(phones) && phones.length > 0){
+            console.log("phones", phones);
+            var counter = 0;
+            phones.forEach(phone => {
             
            
             const users = mongoose.model('Users');
-            users.findOne ({_id : userId}, function( err, userData ){
+            users.findOne ({phone : phone}, function( err, userData ){
             if( userData == undefined || userData == null ){
                 //user not exist
+                counter++;
+                if(counter == phones.length){
+                    resolve(getGroupDetails(groupId));
+                }
             }  
             else{
+                var userId = String(userData._id);
                 let groupUsers = group.groupUsers;
            
                 var dateTime =  Date.now();
@@ -215,10 +301,10 @@ exports.addUsersToGroup = (groupData)=>{
                 groupSession.update({ _id  : groupId}, {$set: updateObject},
                     function (err, result){
                         if(result){   
-                           
-                            //loanSession.findOne({_id : loanId}, function(err, result){     
-                           // resolve({ "loanId": loanId, "amountRequested": result.amountRequested, "totalVouchAmount": result.totalVouchAmount});
-                        //}); 
+                             counter++;
+                            if(counter == phones.length){
+                                resolve(getGroupDetails(groupId));
+                            }
                         }
                             
                     });
@@ -229,7 +315,8 @@ exports.addUsersToGroup = (groupData)=>{
         });
     });
 
-    resolve(1);  
+    }else{
+        resolve(getGroupDetails(groupId));
     }
     }
     });
@@ -241,7 +328,7 @@ exports.addUsersToGroup = (groupData)=>{
 exports.removeUsersFromGroup = (groupData)=>{
     return new Promise( (resolve, reject)=> {
         var groupId = groupData.groupId;
-        var userIds = groupData.userIds;
+        var phones = groupData.phones;
         
     
         groupSession.findOne ({ _id : groupId}, function( err, group ){
@@ -249,17 +336,24 @@ exports.removeUsersFromGroup = (groupData)=>{
                 resolve('group_not_found'); 
             }
        else{
-        if(Array.isArray(userIds)){
-            console.log("userIds", userIds);
-            userIds.forEach(userId => {
+        if(Array.isArray(phones) && phones.length > 0){
+            console.log("phones", phones);
+            var counter = 0;
+            phones.forEach(phone => {
             
            
             const users = mongoose.model('Users');
-            users.findOne ({_id : userId}, function( err, userData ){
+            users.findOne ({phone : phone}, function( err, userData ){
             if( userData == undefined || userData == null ){
-                //user not exist
+               //user not exist
+               counter++;
+               if(counter == phones.length){
+                   resolve(getGroupDetails(groupId));
+               }
             }  
             else{
+                var userId = String(userData._id);
+
                 let groupUsers = group.groupUsers;      
                 let obj = groupUsers.find(o => o.userId  == userId);
                 if(obj != undefined ){
@@ -270,11 +364,11 @@ exports.removeUsersFromGroup = (groupData)=>{
                 groupSession.update({ _id  : groupId}, {$set: updateObject},
                     function (err, result){
                         if(result){   
-                           
-                            //loanSession.findOne({_id : loanId}, function(err, result){     
-                           // resolve({ "loanId": loanId, "amountRequested": result.amountRequested, "totalVouchAmount": result.totalVouchAmount});
-                        //}); 
-                        }
+                            counter++;
+                           if(counter == phones.length){
+                               resolve(getGroupDetails(groupId));
+                           }
+                       }
                             
                     });
 
@@ -284,7 +378,8 @@ exports.removeUsersFromGroup = (groupData)=>{
         });
     });
 
-    resolve(1);  
+    }else{
+        resolve(getGroupDetails(groupId));
     }
     }
     });
@@ -311,7 +406,7 @@ exports.updateGroupDetails = (groupId, groupData) => {
             }
             group.save(function (err, updatedGroup) {
                 if (err) return reject(err);
-                resolve(updatedGroup);
+                resolve(getGroupDetails(groupId));
             });
          }
         });

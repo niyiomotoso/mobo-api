@@ -26,18 +26,21 @@ exports.routesConfig = function (app) {
         GroupController.addUsersToGroup
     ]);
 
-    app.delete('/groups/remove_users_from_group', [
+    app.post('/groups/remove_users_from_group', [
         GroupController.removeUsersFromGroup
     ]);
 
     app.get('/groups/:userId/get_user_groups', [ 
        GroupController.getUserGroups
     ]);
+    app.get('/groups/:groupId/get_group_details', [ 
+        GroupController.getGroupDetails
+     ]);
     app.get('/groups/:phone/get_user_groups_by_phone', [ 
         GroupController.getUserGroupsByPhone
      ]);
     
-    app.patch('/groups/:groupId/update_group_details', upload.single('groupImage'), [ 
+    app.post('/groups/:groupId/update_group_details', upload.single('groupImage'), [ 
         GroupController.updateGroupDetails
      ]);
     

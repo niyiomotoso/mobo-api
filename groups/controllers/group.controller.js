@@ -23,6 +23,18 @@ exports.getUserGroups = (req, res) => {
             }
         });
 };
+
+exports.getGroupDetails = (req, res) => {
+    GroupModel.getGroupDetails(req.params.groupId)
+        .then((result) => {
+            if(result == 'group_not_found'){
+                res.status(200).send(response.failure("group_not_found", " No group found"));
+            }
+            res.status(200).send(response.success(result, "Loaded Successfully"));
+        
+        });
+};
+
 exports.getUserGroupsByPhone = (req, res) => {
     GroupModel.getUserGroupsByPhone(req)
         .then((result) => {
@@ -38,8 +50,8 @@ exports.getUserGroupsByPhone = (req, res) => {
 
 
 exports.addUsersToGroup = (req, res) => {
-    if(req.body.userIds == undefined || req.body.groupId  == undefined){
-        res.status(200).send(response.failure("incomplete_params" ,"group ID and Users must be selected"));
+    if(req.body.phones == undefined || req.body.groupId  == undefined){
+        res.status(200).send(response.failure("incomplete_params" ,"group ID and phones must be set"));
     }
     else{
         GroupModel.addUsersToGroup(req.body)
@@ -56,8 +68,8 @@ exports.addUsersToGroup = (req, res) => {
 };
 
 exports.removeUsersFromGroup = (req, res) => {
-    if(req.body.userIds == undefined || req.body.groupId  == undefined){
-        res.status(200).send(response.failure("incomplete_params" ,"group ID and Users must be selected"));
+    if(req.body.phones == undefined || req.body.groupId  == undefined){
+        res.status(200).send(response.failure("incomplete_params" ,"group ID and phones must be set"));
     }
     else{
         GroupModel.removeUsersFromGroup(req.body)
