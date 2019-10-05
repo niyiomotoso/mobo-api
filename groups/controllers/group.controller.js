@@ -14,8 +14,13 @@ const response = require('../../common/jsonResponse');
 exports.getUserGroups = (req, res) => {
     GroupModel.getUserGroups(req)
         .then((result) => {
+            if(result == 'user_not_found'){
+                res.status(200).send(response.failure("user_not_found", "User not found"));
+            }else  if(result == 'group_not_found'){
+                res.status(200).send(response.failure("group_not_found", " No group found"));
+            }else{
             res.status(200).send(response.success(result, "Loaded Successfully"));
-        
+            }
         });
 };
 exports.getUserGroupsByPhone = (req, res) => {
@@ -23,6 +28,8 @@ exports.getUserGroupsByPhone = (req, res) => {
         .then((result) => {
             if(result == 'user_not_found'){
                 res.status(200).send(response.failure("user_not_found", "User not found"));
+            }else  if(result == 'group_not_found'){
+                res.status(200).send(response.failure("group_not_found", " No group found"));
             }
             res.status(200).send(response.success(result, "Loaded Successfully"));
         

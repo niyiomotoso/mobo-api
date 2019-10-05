@@ -135,17 +135,42 @@ exports.getUserProjects = (req)=>{
     var projectType = req.query.projectType;
 
     return new Promise( (resolve, reject)=> {
-
+        const user = mongoose.model("Users");
+        user.findOne({_id : userId}, function(err, user){
+                     
+            if(user == undefined || user == null){
+                resolve('user_not_found');
+            }
+            user = user.toObject();
+            delete user.password;
         if(projectType != undefined){
             projectSession.find ({"userId" : userId, "projectType": projectType}, function( err, result ){
+                if(result == null){
+                    resolve(null);
+                }
+                
+                result.forEach( (project, index) => {
+                    result[index]  = result[index].toObject();
+                    result[index].owner = user;
+                });
+
                 resolve(result);
             });
         }else{
             projectSession.find ({"userId" : userId}, function( err, result ){
+                if(result == null){
+                    resolve(null);
+                }
+                
+                result.forEach( (project, index) => {
+                    result[index]  = result[index].toObject();
+                    result[index].owner = user;
+                });
+
                 resolve(result);
             });
         }
-
+    });
 
     });
 

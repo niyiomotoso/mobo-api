@@ -72,34 +72,45 @@ exports.getUserGroups = (req)=>{
     var userId = req.params.userId;
     
     return new Promise( (resolve, reject)=> {
+        const users = mongoose.model("Users");
+        users.findOne ( { _id : userId}, function( err, portfolio ){
+            if( portfolio == undefined || portfolio == null ){
+                 resolve('user_not_found'); 
+            }else{
+                groupSession.find({'groupUsers.userId': userId}, function(err, groups) {
+                    var counter = 0;
+                    if( groups == null || groups.length == 0 ){
+                        resolve('group_not_found');
+                    }
 
-        groupSession.find({'groupUsers.userId': userId}, function(err, groups) {
-           
-            groups.forEach((group, group_index )=> {
-                var user_ids = Array();
-                
-                if(Array.isArray(group.groupUsers)){
-                    group.groupUsers.forEach(user_data =>{
-                     
-                        user_ids.push(user_data.userId);
-                    });
-                }
-            
-                
-                getUserDetailsFromArray('_id', user_ids).then(function(usersDetails){
-                   
-                    groups[group_index].usersDetails = usersDetails;
+                    //groups = groups.toObject();
+                    groups.forEach((group, group_index )=> {
+                        var user_ids = Array();
+                        groups[group_index] = groups[group_index].toObject();
+                        if( group != null && Array.isArray(group.groupUsers) ){
+                            group.groupUsers.forEach(user_data =>{
+                            
+                                user_ids.push(user_data.userId);
+                            });
+                        }
+                        
+                        getUserDetailsFromArray('_id', user_ids).then(function(usersDetails){
+                        
+                            groups[group_index].groupUsers = usersDetails;
+                            counter++;
+                            if(counter == groups.length){
+                                console.log("groups ", groups);
+                                resolve(groups);
+                            }
+
                 });
 
-
-                
             });
-            console.log("groups ", groups);
-
+           
             
         });
-
-        
+    }
+});
        
     });
 
@@ -114,38 +125,44 @@ exports.getUserGroupsByPhone = (req)=>{
             if( portfolio == undefined || portfolio == null ){
                  resolve('user_not_found'); 
             }else{
-                var userId  = portfolio._id;
-        groupSession.find({'groupUsers.userId': userId}, function(err, groups) {
-           
-            groups.forEach((group, group_index )=> {
-                var user_ids = Array();
-                
-                if(Array.isArray(group.groupUsers)){
-                    group.groupUsers.forEach(user_data =>{
-                     
-                        user_ids.push(user_data.userId);
-                    });
-                }
-            
-                
-                getUserDetailsFromArray('_id', user_ids).then(function(usersDetails){
-                   
-                    groups[group_index].usersDetails = usersDetails;
+                portfolio = portfolio.toObject();
+                let id = portfolio._id;
+                groupSession.find({'groupUsers.userId': String(id)}, function(err, groups) {
+                    var counter = 0;
+                    if( groups == null || groups.length == 0 ){
+                        resolve('group_not_found');
+                    }else{
+
+                    //groups = groups.toObject();
+                    groups.forEach((group, group_index )=> {
+                        var user_ids = Array();
+                        groups[group_index] = groups[group_index].toObject();
+                        if( group != null && Array.isArray(group.groupUsers) ){
+                            group.groupUsers.forEach(user_data =>{
+                            
+                                user_ids.push(user_data.userId);
+                            });
+                        }
+                        
+                        getUserDetailsFromArray('_id', user_ids).then(function(usersDetails){
+                        
+                            groups[group_index].groupUsers = usersDetails;
+                            counter++;
+                            if(counter == groups.length){
+                                console.log("groups ", groups);
+                                resolve(groups);
+                            }
+
                 });
 
-
-                
             });
-            console.log("groups ", groups);
-
-            
-        });}
-    });
-        
+           
+        }
+        });
+    }
+});
        
     });
-    
-
 };
 
 function getUserDetailsFromArray(field_to_search, fieldArray){
