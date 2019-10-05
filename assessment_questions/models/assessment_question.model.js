@@ -96,9 +96,20 @@ exports.getMemebershipFee = (userId) => {
         if( portfolio == undefined || portfolio == null ){
             resolve('user_not_found'); 
         }else{
-        var result = [2000, 4200, 750][Math.floor(Math.random() * 3)]
-        resolve(result);
-        } 
+            var category = "PLACEHOLDER";
+            Assessment.findOne ({ userId : userId}, function( err, assessment ){
+                if( assessment == undefined || assessment == null ){
+                    resolve('assessment_not_found'); 
+                }else{
+                var questions_and_answers = assessment.questions_and_answers;
+                console.log(questions_and_answers);
+                if( questions_and_answers[1] != undefined &&  questions_and_answers[1].answer1 != undefined){
+                category = questions_and_answers[1].answer1;
+            }
+                resolve(category);
+            }
+        });
+    }
     });
     });
 };
