@@ -2,7 +2,7 @@ const UserModel = require('../models/users_portfolio.model');
 const response = require('../../common/jsonResponse');
 
 exports.addToUserPartners = (req, res) => {
-    
+    console.log("add_user",req.body);
     UserModel.addToUserPartners(req.params.userId, req.body)
         .then((result) => {
             if(result == "user_not_exist")
@@ -27,6 +27,7 @@ exports.confirmUserPartnershipStatus = (req, res) => {
 };
 
 exports.removeFromUserPartners = (req, res) => {
+    console.log("remove_user",req.body);
 UserModel.removeFromUserPartners(req.params.userId, req.body)
 .then((result) => {
     if(result == "user_not_exist")

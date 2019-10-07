@@ -12,7 +12,6 @@ mongoose.connect(config.MONGO_URL);
 const Schema = mongoose.Schema;
 
 const projectSessionSchema = new Schema({
-    userId: String,
     projectName:String,
     targetAmount: Number,
     totalContributedAmount: Number,
@@ -23,11 +22,17 @@ const projectSessionSchema = new Schema({
     targetMode: String,
     projectType: String,
     coverImage: String,
-    groupId: String,
     description: String,
     contributions: Array,
     withdrawals: Array,
-    owner: Object,
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,                             
+        ref: 'Users'
+      },
+      groupId: {
+        type: mongoose.Schema.Types.ObjectId,                             
+        ref: 'groupSession'
+      }
     
     
 }, {timestamps: true});
@@ -105,8 +110,16 @@ exports.makeProjectRequest = (projectData)=> {
     const project = new projectSession(session);
  
     return new Promise ( ( resolve, reject) => {
+        const user = mongoose.model("users");
+            
+        user.findOne({_id : userId}, function (err, userDetials) {
+            if(userDetials == null ){
+                resolve("user_not_found");         
+            }
+            else{
         if(groupId != undefined && groupId != null){
             const groupSession = mongoose.model("groupSession");
+            
             groupSession.findById(groupId, function (err, group) {
                 if(group == null ){
                     resolve("group_not_found");         
@@ -125,8 +138,11 @@ exports.makeProjectRequest = (projectData)=> {
                 resolve(savedSession);
             }
         );
-        }
+        }}
+
     });
+});
+    
 };
 
 

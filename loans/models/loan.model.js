@@ -151,8 +151,8 @@ exports.addVouchToLoan = (vouchData)=>{
 
         const Users = mongoose.model('Users');
 
-        Users.findOne ({ _id : partnerUserId}, function( err, result ){
-            if( result == undefined || result == null ){
+        Users.findOne ({ _id : partnerUserId}, function( err, partneruser ){
+            if( partneruser == undefined || partneruser == null ){
                 resolve('financial_partner_not_found');
                 
             }
@@ -181,10 +181,10 @@ exports.addVouchToLoan = (vouchData)=>{
                    vouches.splice(vouches.indexOf(obj), 1);
                   
                    var totalVouchAmount =  totalVouchAmountAfterNewVouch - parseFloat(obj.amount);
-                   vouches.push({ "userId": partnerUserId, "amount": amount, "status": 1, "createdAt": dateTime});                   
+                   vouches.push({ "userId": partnerUserId, "amount": amount, "status": 1, "createdAt": dateTime, 'name':partneruser.firstName+" "+partneruser.lastName });                   
                 }else{
                     var totalVouchAmount =  totalVouchAmountAfterNewVouch;
-                    vouches.push({ "userId": partnerUserId, "amount": amount, "status": 1, "createdAt": dateTime});     
+                    vouches.push({ "userId": partnerUserId, "amount": amount, "status": 1, "createdAt": dateTime,  'name':partneruser.firstName+" "+partneruser.lastName});     
                                            
                 }
 

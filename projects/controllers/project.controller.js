@@ -103,6 +103,9 @@ exports.makeProjectRequest = (req, res) => {
                 }else if(result == 'group_not_found'){
                     res.status(200).send(response.failure("group_not_found", "Group not found"));
                 }
+            else if(result == 'user_not_found'){
+                res.status(200).send(response.failure("user_not_found", "User not found"));
+            }
                 else{
                 res.status(200).send(response.success(result, "Loaded Successfully"));
             }
