@@ -110,7 +110,7 @@ exports.makeProjectRequest = (projectData)=> {
     const project = new projectSession(session);
  
     return new Promise ( ( resolve, reject) => {
-        const user = mongoose.model("users");
+        const user = mongoose.model("Users");
             
         user.findOne({_id : userId}, function (err, userDetials) {
             if(userDetials == null ){

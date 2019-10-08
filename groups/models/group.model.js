@@ -85,40 +85,16 @@ exports.getGroupDetails = (groupId)=>{
                                 group.groupUsers.forEach(user_data =>{
                                     user_ids.push(user_data.userId);
                                 });
-                            }
-                        
+                            } 
                         group = group.toObject();
+                        const user = mongoose.model("Users");
+                        user.findOne({'_id': group.creatorUserId}, function(err, groupOwner){
+                        group.owner = groupOwner;
                         getUserDetailsFromArray('_id', user_ids).then(function(usersDetails){
                         
                             group.groupUsers = usersDetails;
                             const projects = mongoose.model("projectSession");
-                            // projects.find({'groupId':  groupId }, function (err, groupProjects){
-                            //     if(groupProjects != null && groupProjects.length > 0){
-                            //         var project_counter = 0;
-                            //         groupProjects.forEach( (project, project_index) =>{
-                            //             const users = mongoose.model("Users");
-                            //             users.findOne ( { _id : String(project.userId)}, function( err, projectOwner ){
-                            //                 project_counter++;
-                            //                 if( projectOwner != null ){
-                            //                     projectOwner=projectOwner.toObject();
-                            //                     delete projectOwner.password;
-                            //                     groupProjects[project_index] = groupProjects[project_index].toObject();
-                            //                     groupProjects[project_index].owner = projectOwner;
-                            //                 }
-                            //                 console.log("projectOwner", projectOwner);
-                            //                 if(project_counter == groupProjects.length){
-                            //                     group.projects = groupProjects;
-                            //                     resolve(group); 
-                            //                 }
-                            //             });
-                            //         });
-                                
-                            //     }else{
-                            //     group.projects = groupProjects;
-                            //     console.log("groupProjects", groupProjects);
-                            //     resolve(group);
-                            //     }
-                            // });
+                            
                             projects.aggregate([
                                 
                                 {
@@ -147,6 +123,7 @@ exports.getGroupDetails = (groupId)=>{
                                 
                         
 });
+});
 }  
     });
 });
@@ -169,35 +146,14 @@ function getGroupDetails(groupId){
                             }
                         
                         group = group.toObject();
+                        const user = mongoose.model("Users");
+                        user.findOne({'_id': group.creatorUserId}, function(err, groupOwner){
+                        groups[group_index].owner  = groupOwner;
                         getUserDetailsFromArray('_id', user_ids).then(function(usersDetails){
                         
                             group.groupUsers = usersDetails;
                             const projects = mongoose.model("projectSession");
-                            // projects.find({'groupId':  groupId }, function (err, groupProjects){
-                            //     if(groupProjects != null && groupProjects.length > 0){
-                            //         var project_counter = 0;
-                            //         groupProjects.forEach( (project, project_index) =>{
-                            //             const users = mongoose.model("Users");
-                            //             users.findOne ( { _id : String(project.userId)}, function( err, projectOwner ){
-                            //                 project_counter++;
-                            //                 if( projectOwner != null ){
-                            //                     projectOwner=projectOwner.toObject();
-                            //                     delete projectOwner.password;
-                            //                     groupProjects[project_index] = groupProjects[project_index].toObject();
-                            //                     groupProjects[project_index].owner = projectOwner;
-                            //                 }
-                            //                 if(project_counter == groupProjects.length){
-                            //                     group.projects = groupProjects;
-                            //                     resolve(group); 
-                            //                 }
-                            //             });
-                            //         });
-                                
-                            //     }else{
-                            //     group.projects = groupProjects;
-                            //     resolve(group);
-                            //     }
-                            // });
+                         
                                 
                           
                             projects.aggregate([
@@ -226,7 +182,7 @@ function getGroupDetails(groupId){
                                     console.error("err",err);
                                   });
                         
-});
+});});
 }  
     });
 });
@@ -262,7 +218,10 @@ exports.getUserGroupsByPhone = (req)=>{
                                 user_ids.push(user_data.userId);
                             });
                         }
-                        
+                        const user = mongoose.model("Users");
+                        user.findOne({'_id': group.creatorUserId}, function(err, groupOwner){
+                        groups[group_index].owner = groupOwner;
+
                         getUserDetailsFromArray('_id', user_ids).then(function(usersDetails){
                         
                             groups[group_index].groupUsers = usersDetails;
@@ -297,57 +256,17 @@ exports.getUserGroupsByPhone = (req)=>{
                                     console.error("err",err);
                                   });
 
-                            // projects.find({'groupId':  String(group._id) }, function (err, groupProjects){
-                            //     counter++;
-                            //     groups[group_index].projects = groupProjects;
-                            //     var project_done_loading = false;
-                            //   //  console.log("groupProjects", groupProjects);
-                            //     if(groupProjects != null && groupProjects.length > 0){
-                                    
-                            //         var project_counter = 0;
-                            //         groupProjects.forEach( (project, project_index) =>{
-                            //             const users = mongoose.model("Users");
-                            //             users.findOne ( { _id : String(project.userId)}, function( err, projectOwner ){
-                            //                 project_done_loading = false;
-                            //                 project_counter++;
-                            //              //   console.log("projectOwner", projectOwner);
-                            //                 if( projectOwner != null ){
-                            //                     projectOwner=projectOwner.toObject();
-                            //                     delete projectOwner.password;
-                            //                     groupProjects[project_index] = groupProjects[project_index].toObject();
-                            //                     groupProjects[project_index].owner = projectOwner;
-                            //                 }
-                            //                 if(project_counter == groupProjects.length )
-                            //                    project_done_loading = true;
-                            //                 if( counter == groups.length){
-                            //                     groups[group_index].projects = groupProjects;
-                            //                     resolve(groups); 
-                            //                 }
-                            //             });
-                            //         });
-                                
-                            //     }else{
-                            //        //if the last project that has project has loaded, it will be true
-                            //         if(counter == groups.length && project_done_loading){
-                            //            // console.log("group_index", groupProjects);
-                            //             resolve(groups);
-                            //         }
-                            //         project_done_loading = true;
-                            //     }
-
-
-                        
-
-                            // });
+                           
 
                            
 
                 });
 
             });
-           
+        });
         }
         });
+        
     }
 });
        

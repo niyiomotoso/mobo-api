@@ -47,7 +47,8 @@ exports.getMaximumLoan = (userId) => {
         else{   
 
             UserPortfolioModel.getUserWalletBalance(userId)
-            .then((balance) => {      
+            .then((balance) => {   
+                console.log( "balance", balance);   
                 if(balance == null){
                     balance = 0;
                 }
@@ -58,7 +59,7 @@ exports.getMaximumLoan = (userId) => {
                 totalAvailable = totalAvailable + parseFloat(element.balance);
 
                 });
-                console.log( "console.log(totalAvailable);", totalAvailable + parseFloat(balance));
+                console.log( "totalAvailable", totalAvailable + parseFloat(balance));
                 resolve(totalAvailable);
             });
         });
