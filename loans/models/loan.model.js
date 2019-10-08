@@ -59,7 +59,7 @@ exports.getMaximumLoan = (userId) => {
                 totalAvailable = totalAvailable + parseFloat(element.balance);
 
                 });
-                console.log( "totalAvailable", totalAvailable + parseFloat(balance));
+                totalAvailable = totalAvailable + parseFloat(balance);
                 resolve(totalAvailable);
             });
         });
