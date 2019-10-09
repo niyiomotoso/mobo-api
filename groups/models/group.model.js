@@ -148,7 +148,7 @@ function getGroupDetails(groupId){
                         group = group.toObject();
                         const user = mongoose.model("Users");
                         user.findOne({'_id': group.creatorUserId}, function(err, groupOwner){
-                        groups[group_index].owner  = groupOwner;
+                        group.owner  = groupOwner;
                         getUserDetailsFromArray('_id', user_ids).then(function(usersDetails){
                         
                             group.groupUsers = usersDetails;
@@ -176,8 +176,8 @@ function getGroupDetails(groupId){
                                 ]).exec().then((data) => {
                                     console.log("data",data);
                                       
-                                       groups[group_index].projects = data;
-                                       resolve(groups);
+                                    group.projects = data;
+                                       resolve(group);
                                   }).catch((err) => {
                                     console.error("err",err);
                                   });

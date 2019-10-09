@@ -90,6 +90,7 @@ exports.createUser = (userData) => {
                 else{ 
                     userData.status = "UNVERIFIED";
                     userData.activationCode =  generateVerficationCode();
+                    userData.isMembershipFeePaid= false;
                     const user = new User(userData);
                     user.save(
                         function (err, created_user){

@@ -295,13 +295,15 @@ exports.addToUserPartners = (userId, partnerData ) => {
                 var currentPartners = portfolio_details.partners;
                 let ids = partnerData.phones;
                 var idVerificationPromise = new Promise((resolve, reject) => {
+                    var loop_counter = 0;
                     ids.forEach((element, index, array) => {
-                      
+                        console.log("currentPartners", currentPartners,element);
                         let obj = currentPartners.find(o => o.phone  == element);
-                       
-                        if(obj == undefined){
+                        console.log("obj", array);
+                        if(obj == undefined && element!= ""){
                              //that is, phone is not been added before
                             UserModel.findByPhone(element).then((result) => {
+                                loop_counter++;
                                 //to ensure the user already exist
                             if(result != undefined || result != null){
                                 
@@ -313,17 +315,14 @@ exports.addToUserPartners = (userId, partnerData ) => {
                                 
                                 //commonEmitter.emit('new_financial_partner_sms_event', element, user_fullname);
 
-                               console.log(" dobe done done",element,  user_fullname);
-
-
-
 
                             }
-                            if (index === array.length -1) resolve();
+                            if (loop_counter >= array.length) resolve();
 
                             });
                         }else{
-                            if (index === array.length -1) resolve();
+                            loop_counter++;
+                            if (loop_counter >= array.length ) resolve();
                             
                         }
 
@@ -338,7 +337,7 @@ exports.addToUserPartners = (userId, partnerData ) => {
                  
                     userPortfolio.update({userId  : userId}, {$set: updateObject},
                           function (err, result){
-                            
+                            console.log(result);
                             resolve(parentAccess.getUserPartners(userId));
                                    
                           
