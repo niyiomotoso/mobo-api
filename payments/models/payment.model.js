@@ -13,6 +13,7 @@ const LeapPaymentModel = require('../../payments/models/leap_payment.model');
 const assessmentModel = require('../../assessment_questions/models/assessment_question.model');
 mongoose.connect(config.MONGO_URL);
 const Schema = mongoose.Schema;
+var debitHistory = require("../../users/models/users_debit_history.model")
 
 const paymentSessionSchema = new Schema({
     userId: String,
@@ -259,7 +260,7 @@ return new Promise((resolve, reject) => {
                 function (err, portfolio){
                     if(portfolio != null && ( parseFloat(portfolio.balance) - parseFloat(fee) >= 0 ) ){     
                         //deduct from contributor's balance
-                        var newBalance = parseFloat(portfolio.balance) - parseFloat(fee);
+                        var newBalance = parseFloat(parseFloat(portfolio.balance) - parseFloat(fee)).toFixed(2);
                         var updateObject = {'balance': newBalance}; 
                         UserPortfolio.update({ userId  : userId}, {$set: updateObject},
                             function (err, portfolioUpdateResult){
@@ -268,6 +269,18 @@ return new Promise((resolve, reject) => {
                                     let session = {"userId": userId, "amount": fee, "status": "ACTIVE", "transactionType": "MEMBERSHIP FEE", "transactionId": transactionId, "depositorName" : userData.firstName+" "+userData.lastName};
                                     UserModel.patchUser(userId, userData);
                                     LeapPaymentModel.logPayment(session);
+
+                                    var transaction =  {"balanceAfter": newBalance,
+                                    "balanceBefore": portfolio.balance,
+                                    "amount": parseFloat(fee).toFixed(2),
+                                    "fromUserId" : userId,
+                                    "fromName" : userData.firstName+" "+userData.lastName,
+                                    "toUserId" : "LEAP",
+                                    "toName" : "LEAP",
+                                    "transactionType" : "MEMBERSHIP FEE",
+                                    "transactionStatus" : "DONE" };
+                  
+                                    debitHistory.addNewTransaction(transaction);
                                 }
                                     
                             });

@@ -207,6 +207,8 @@ exports.getProjectDetails = (projectId)=>{
                     if(creator == undefined || creator == null){
                         resolve('owner_not_found');
                     }
+                    project = project.toObject();
+                    project.owner = creator;
                   
                 if((project.contributions != undefined && project.contributions.length> 0   )){
                     var counter = 0;
@@ -224,8 +226,7 @@ exports.getProjectDetails = (projectId)=>{
                            
                            if(counter == project.contributions.length){
                                var newProjectObject = project;
-                               //delete creator.password;
-                               newProjectObject.owner = creator;
+                              
                                //newProjectObject.ownerProfilePicPath = creator.profilePicPath;
                                 resolve(newProjectObject);
                            }
@@ -234,8 +235,6 @@ exports.getProjectDetails = (projectId)=>{
                     });
                 }else{
                     var newProjectObject = project;
-                  
-                    newProjectObject.owner = creator;
                     //newProjectObject.ownerProfilePicPath = creator.profilePicPath;
                     resolve(newProjectObject);
                     

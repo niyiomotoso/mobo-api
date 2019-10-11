@@ -40,8 +40,16 @@ exports.findByUserId = (id) => {
 
 
 exports.createAssessment = (userData) => {
+    const user = mongoose.model('Users');
+    return new Promise((resolve, reject) => {
+       user.findOne ({ _id : userData.userId}, function( err, portfolio ){
+        if( portfolio == undefined || portfolio == null ){
+            resolve('user_not_found'); 
+        }else{
     const assessment = new Assessment(userData);
-    return assessment.save();
+    resolve(assessment.save());
+   }
+});});
 };
 
 exports.list = (perPage, page) => {
@@ -89,6 +97,42 @@ exports.removeById = (userId) => {
 };
 
 exports.getMemebershipFee = (userId) => {
+    return new Promise((resolve, reject) => {
+       // var fees = [200, 4200, 750];
+       const user = mongoose.model('Users');
+       user.findOne ({ _id : userId}, function( err, portfolio ){
+        if( portfolio == undefined || portfolio == null ){
+            resolve('user_not_found'); 
+        }else{
+            var category = "PLACEHOLDER";
+            Assessment.findOne ({ userId : userId}, function( err, assessment ){
+                if( assessment == undefined || assessment == null ){
+                    resolve('assessment_not_found'); 
+                }else{
+                var questions_and_answers = assessment.questions_and_answers;
+                console.log(questions_and_answers);
+                if( questions_and_answers[1] != undefined &&  questions_and_answers[1].answer1 != undefined){
+                category = questions_and_answers[1].answer1;
+            }
+        
+            var categoryObject = {"EMPLOYEE": 1699.89,
+            "STUDENT":899.56,
+            "UNEMPLOYED":899.56,
+            "SMALL BUSINESS OWNER":3200.89,
+            "EMPLOYER OF LABOUR":3200.89,
+            "CONTRACTOR/FREELANCE": 1699.89
+            };
+            resolve(categoryObject[category]);
+        }
+
+        });
+    }
+    });
+    });
+};
+
+
+exports.getMemebershipStatus = (userId) => {
     return new Promise((resolve, reject) => {
        // var fees = [200, 4200, 750];
        const user = mongoose.model('Users');

@@ -5,6 +5,8 @@ const uuid = require('node-uuid');
 const response = require('../../common/jsonResponse');
 const UserPortfolioModel = require('../../users/models/users_portfolio.model');
 const UserModel = require('../../users/models/users.model');
+const GroupModel = require('../../groups/models/group.model');
+
 const ProjectModel = require('../../projects/models/project.model');
 const UserAssessment = require('../../assessment_questions/models/assessment_question.model');
 
@@ -32,6 +34,11 @@ exports.login = (req, res) => {
     
                     ProjectModel.getUserProjects(custom_req)
                     .then((public_projects) => {
+                        custom_req = {"params": {"phone": req.body.phone}  }
+                GroupModel.getUserGroupsByPhone(custom_req)
+                    .then((user_groups) => {
+                        if(user_groups == "user_not_found")
+                            user_groups = [];
                         custom_req = {"params": {"userId": req.body.userId}, "query": {"projectType": "GROUP"}  }
     
                         ProjectModel.getUserProjects(custom_req)
@@ -46,12 +53,13 @@ exports.login = (req, res) => {
                         newobject["balance"] = balance;
                             res.status(200).send(response.success({accessToken: token, refreshToken: refresh_token, 
                             balance: balance, partners: user_partners, referrals: user_referrals, bio: newobject, assessment_question: assessment,
-                        private_projects: private_projects, public_projects: public_projects, group_projects: group_projects}, "Login Success"));
+                        private_projects: private_projects, public_projects: public_projects, group_projects: group_projects, user_groups: user_groups}, "Login Success"));
             
                         });
                 });
             
             });
+        });
         });
     });
 
@@ -88,7 +96,11 @@ exports.refresh = (req, res) => {
     
                         ProjectModel.getUserProjects(custom_req)
                         .then((group_projects) => {
-                
+                            custom_req = {"params": {"phone": req.body.phone}  }
+                            GroupModel.getUserGroupsByPhone(custom_req)
+                                .then((user_groups) => {
+                                    if(user_groups == "user_not_found")
+                                        user_groups = [];
                 UserPortfolioModel.getUserWalletBalance(req.params.userId)
                 .then((balance) => {
                     UserAssessment.findByUserId(req.params.userId)
@@ -96,12 +108,13 @@ exports.refresh = (req, res) => {
                             user.balance = balance;
                             res.status(200).send(response.success({ 
                             balance: balance, partners: user_partners, referrals: user_referrals, bio: user, assessment_question: assessment,
-                            private_projects: private_projects, public_projects: public_projects, group_projects: group_projects}, "Refresh Success"));
+                            private_projects: private_projects, public_projects: public_projects, group_projects: group_projects, user_groups: user_groups}, "Refresh Success"));
             
                         });
                 });
             
             });
+        });
         
         });
     });

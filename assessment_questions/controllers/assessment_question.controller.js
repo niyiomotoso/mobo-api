@@ -10,7 +10,11 @@ exports.insert = (req, res) => {
     AssessQuestionModel.createAssessment(req.body)
         .then((result) => {
            // res.status(201).send({id: result._id});
+           if(result == "user_not_found"){
+            res.status(200).send(response.failure("user_not_found", "user not found"));
+           }else{
             res.status(200).send(response.success({id: result._id}, "Added Successfully"));
+        }
         });
 };
 
@@ -56,8 +60,8 @@ exports.removeByUserId = (req, res) => {
 };
 
 
-exports.getMemebershipFee = (req, res) => {
-    AssessQuestionModel.getMemebershipFee(req.params.userId)
+exports.getMemebershipStatus = (req, res) => {
+    AssessQuestionModel.getMemebershipStatus(req.params.userId)
         .then((result)=>{
             if(result == "user_not_found"){
                 res.status(200).send(response.failure("user_not_found", "user not found"));
