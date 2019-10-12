@@ -98,8 +98,8 @@ exports.getGroupDetails = (groupId)=>{
                             projects.aggregate([
                                 
                                 {
-                                  $match:{groupId : mongoose.Schema.Types.ObjectId(groupId) }
-                                },
+                                  $match:{groupId : mongoose.Schema.Types.ObjectId(groupId),projectType : 'GROUP' }
+                                 },
                                
                                 {
                                    $lookup:
@@ -159,7 +159,7 @@ function getGroupDetails(groupId){
                             projects.aggregate([
                                 
                                 {
-                                  $match:{groupId : group._id }
+                                    $match:{groupId : group._id , projectType : 'GROUP'}
                                 },
                                
                                 {
@@ -232,7 +232,7 @@ exports.getUserGroupsByPhone = (req)=>{
                             projects.aggregate([
                                 
                                 {
-                                  $match:{groupId : group._id }
+                                  $match:{groupId : group._id , projectType : 'GROUP'}
                                 },
                                
                                 {
