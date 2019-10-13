@@ -30,7 +30,7 @@ exports.getGroupDetails = (req, res) => {
             if(result == 'group_not_found'){
                 res.status(200).send(response.failure("group_not_found", " No group found"));
             }else{
-            res.status(200).send(response.success(1, "Loaded Successfully"));
+            res.status(200).send(response.success(result, "Loaded Successfully"));
             }
         });
 };

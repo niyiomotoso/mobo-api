@@ -33,9 +33,9 @@ exports.routesConfig = function (app) {
     app.get('/groups/:userId/get_user_groups', [ 
        GroupController.getUserGroups
     ]);
-    app.get('/groups/:groupId/get_group_details', [ 
-        GroupController.getUserGroupsByPhone
-     ]);
+    // app.get('/groups/:groupId/get_group_details', [ 
+    //     GroupController.getUserGroupsByPhone
+    //  ]);
     app.get('/groups/:phone/get_user_groups_by_phone', [ 
         GroupController.getUserGroupsByPhone
      ]);
