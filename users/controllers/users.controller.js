@@ -1,4 +1,6 @@
 const UserModel = require('../models/users.model');
+const projectModel = require('../../projects/models/project.model');
+const loanModel = require('../../loans/models/loan.model');
 const crypto = require('crypto');
 const response = require('../../common/jsonResponse');
 
@@ -61,6 +63,30 @@ exports.getById = (req, res) => {
         .then((result) => {
          
             res.status(200).send(response.success(result, "Loaded Successfully"));
+        
+        });
+};
+exports.getUserPartnerProjects = (req, res) => {
+    projectModel.getUserPartnerProjects(req.params.userId)
+        .then((result) => {   
+            if(result == "user_not_found"){
+                res.status(200).send(response.failure("user_not_found", "user not found"));
+           
+            }else{
+            res.status(200).send(response.success(result, "Loaded Successfully"));
+        }
+        
+        });
+};
+exports.getUserPartnerLoans = (req, res) => {
+    loanModel.getUserPartnerLoans(req.params.userId)
+        .then((result) => {   
+            if(result == "user_not_found"){
+                res.status(200).send(response.failure("user_not_found", "user not found"));
+           
+            }else{
+            res.status(200).send(response.success(result, "Loaded Successfully"));
+        }
         
         });
 };

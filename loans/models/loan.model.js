@@ -11,7 +11,10 @@ mongoose.connect(config.MONGO_URL);
 const Schema = mongoose.Schema;
 
 const loanSessionSchema = new Schema({
-    userId: String,
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,                             
+        ref: 'Users'
+      },
     amountRequested: Number,
     totalVouchAmount: Number,
     userPaybackTime: String,
@@ -60,6 +63,7 @@ exports.getMaximumLoan = (userId) => {
 
                 });
                 totalAvailable = totalAvailable + parseFloat(balance);
+                console.log("totalAvailable", totalAvailable);
                 resolve(totalAvailable);
             });
         });
@@ -158,6 +162,14 @@ exports.addVouchToLoan = (vouchData)=>{
                 
             }
        else{
+        const UserPortfolio = mongoose.model('UserPortfolio');
+        UserPortfolio.findOne ({ userId : partnerUserId}, function( err, portfolio ){
+            if( portfolio != null ){
+                var balance = parseFloat(portfolio.balance );
+                if( balance < parseFloat( amount) )
+                resolve('vouch_amount_more_than_balance'); 
+            }
+
         loanSession.findOne ({_id : loanId}, function( err, loanData ){
             if( loanData == undefined || loanData == null )
               resolve('loan_id_not_found');
@@ -205,6 +217,7 @@ exports.addVouchToLoan = (vouchData)=>{
      
             }
         });
+        });
     }
     });
     });
@@ -241,7 +254,58 @@ exports.updateLoanStatus = (loanId, status)=>{
 };
 
 
+exports.getUserPartnerLoans  = (userId)=>{
 
+    return new Promise ((resolve, reject) =>{
+    const userPortfolio = mongoose.model('UserPortfolio');
+       userPortfolio.findOne({userId: userId}, function(err, result){
+           idArray = [];
+           if(result ==null){
+            resolve('user_not_found'); 
+           }
+           else{
+           result.partners.forEach( (element, index)=> {
+               console.log(element.userId);
+               idArray.push(  element.userId );    
+           });
+           console.log(idArray);
+            const loans = mongoose.model("loanSession");
+            loans.aggregate([
+                                
+                                {
+                                  $match:{"userId": { "$in": idArray },
+                                  }
+                                },
+                               
+                                {
+                                   $lookup:
+                                   {
+                                       from: "users",
+                                       localField: "userId",
+                                       foreignField: "_id",
+                                       as: "owner"
+                                   }
+                                }
+                                ,
+                                {$unwind: '$owner'}
+                               
+                                ]).exec().then((data) => {
+                                    console.log("data",data);
+                                    resolve(data);
+                                  }).catch((err) => {
+                                    console.error("err",err);
+                                  });
+
+
+        }
+       
+      }); 
+
+
+    });
+
+
+   }
 
 
 

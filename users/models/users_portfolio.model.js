@@ -282,8 +282,8 @@ exports.confirmUserReferrals = (userId, Data, newUserId ) => {
 exports.addToUserPartners = (userId, partnerData ) => {
     var parentAccess = this;
     return new Promise((resolve, reject) => {
-              
-        UserModel.findById(userId).then((result) => {
+        const userModel = mongoose.model("Users");    
+        userModel.findOne({ _id: userId}, function (err, result) {
         //  result = result.toJSON();
         if(result == null || result.length == 0)
         resolve("user_not_exist"); 
@@ -300,20 +300,38 @@ exports.addToUserPartners = (userId, partnerData ) => {
                         console.log("currentPartners", currentPartners,element);
                         let obj = currentPartners.find(o => o.phone  == element);
                         console.log("obj", array);
-                        if(obj == undefined && element!= ""){
+                        if(obj == undefined && element!= "" && result.phone != element){
                              //that is, phone is not been added before
-                            UserModel.findByPhone(element).then((result) => {
+                            UserModel.findByPhone(element).then((partnerUser) => {
                                 loop_counter++;
                                 //to ensure the user already exist
-                            if(result != undefined || result != null){
+                            if(partnerUser != undefined || partnerUser != null){
                                 
                                 console.log("just added",element );  
                                 var dateTime =  Date.now();
                                 dateTime = moment(dateTime).format("YYYY-MM-DD HH:mm:ss");
 
-                                currentPartners.push({ "userId": result._id, "phone": element, "status": 'PENDING', "createdAt": dateTime, "name": result.firstName+" "+result.lastName, "profilePicPath": result.profilePicPath});
+                                currentPartners.push({ "userId": partnerUser._id, "phone": element, "status": 'PENDING', "createdAt": dateTime, "name": partnerUser.firstName+" "+partnerUser.lastName, "profilePicPath": partnerUser.profilePicPath});
                                 
                                 //commonEmitter.emit('new_financial_partner_sms_event', element, user_fullname);
+
+
+
+                                userPortfolio.findOne({ userId: String( partnerUser._id) }, function (err, partnerPort){                     
+                                var currentPartnerPartners = partnerPort.partners;
+                                let obj = currentPartnerPartners.find(o => o.phone  == result.phone );
+                                if(obj == undefined ){
+                                    currentPartnerPartners.push({ "userId": result._id, "phone": result.phone, "status": 'PENDING', "createdAt": dateTime, "name": result.firstName+" "+result.lastName, "profilePicPath": result.profilePicPath});
+                                }
+                                var updateObject = {'partners': currentPartnerPartners}; // {last_name : "smith", age: 44}   
+                                console.log("currentPartnerPartners", currentPartnerPartners);
+                                userPortfolio.update({userId  : partnerPort.userId}, {$set: updateObject},
+                                    function (err, done){
+                                      
+                                    });
+                                });
+
+
 
 
                             }
@@ -523,6 +541,8 @@ exports.getUserPartners  = (userId)=>{
       }); 
     });
    }
+
+
 
 exports.confirmUserPartnershipStatus = (confirmationData)=> {
     var subjectUserId = confirmationData.subjectUserId;

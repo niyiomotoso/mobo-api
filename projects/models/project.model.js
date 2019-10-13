@@ -364,6 +364,60 @@ exports.updateProjectStatus = (projectId, status)=>{
 });
 };
 
+exports.getUserPartnerProjects  = (userId)=>{
+
+    return new Promise ((resolve, reject) =>{
+        const userPortfolio = mongoose.model('UserPortfolio');
+       userPortfolio.findOne({userId: userId}, function(err, result){
+           idArray = [];
+           if(result ==null){
+            resolve('user_not_found'); 
+           }
+           else{
+           result.partners.forEach( (element, index)=> {
+               console.log(element.userId);
+               idArray.push(  element.userId );    
+           });
+           console.log(idArray);
+            const projects = mongoose.model("projectSession");
+            projects.aggregate([
+                                
+                                {
+                                  $match:{"userId": { "$in": idArray },
+                                   projectType : 'PUBLIC'}
+                                },
+                               
+                                {
+                                   $lookup:
+                                   {
+                                       from: "users",
+                                       localField: "userId",
+                                       foreignField: "_id",
+                                       as: "owner"
+                                   }
+                                }
+                                ,
+                                {$unwind: '$owner'}
+                               
+                                ]).exec().then((data) => {
+                                    console.log("data",data);
+                                    resolve(data);
+                                  }).catch((err) => {
+                                    console.error("err",err);
+                                  });
+
+
+        }
+       
+      }); 
+
+
+    });
+
+
+   }
+
+
 
 
 

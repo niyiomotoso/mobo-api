@@ -37,6 +37,15 @@ exports.routesConfig = function (app) {
         // PermissionMiddleware.minimumPermissionLevelRequired(PAID),
         UsersController.list
     ]);
+    app.get('/users/:userId/get_partners_projects', [
+         UsersController.getUserPartnerProjects
+    ]);
+    
+    app.get('/users/:userId/get_partners_loans', [
+        UsersController.getUserPartnerLoans
+   ]);
+   
+
     app.get('/users/:userId', [
         // ValidationMiddleware.validJWTNeeded,
         // PermissionMiddleware.minimumPermissionLevelRequired(FREE),

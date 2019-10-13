@@ -78,7 +78,7 @@ exports.createUser = (userData) => {
     return new Promise((resolve, reject )=>{
          User.find({phone: userData.phone}, function(err, result){
         
-        if(result.length > 0 ){
+        if(result!= null && result != undefined && result.length > 0 ){
             resolve("phone_exist");         
         }
         else{

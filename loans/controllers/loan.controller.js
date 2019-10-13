@@ -58,6 +58,10 @@ exports.addVouchToLoan = (req, res) => {
             else if(result == 'requested_amount_exceeded'){
                 res.status(200).send(response.failure("requested_amount_exceeded", "requested amount exceeded by new vouch"));
             }
+            else if(result == 'vouch_amount_more_than_balance'){
+                res.status(200).send(response.failure("vouch_amount_more_than_balance", "Vouch amount should be less than your current balance"));
+            }
+            
             
             else{
             res.status(200).send(response.success(result, "Loaded Successfully"));
