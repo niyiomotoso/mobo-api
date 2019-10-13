@@ -98,7 +98,7 @@ exports.getGroupDetails = (groupId)=>{
                             projects.aggregate([
                                 
                                 {
-                                  $match:{groupId : mongoose.Schema.Types.ObjectId(groupId),projectType : 'GROUP' }
+                                  $match:{groupId : group._id,projectType : 'GROUP' }
                                  },
                                
                                 {
