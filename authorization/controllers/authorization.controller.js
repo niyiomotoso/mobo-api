@@ -96,7 +96,7 @@ exports.refresh = (req, res) => {
     
                         ProjectModel.getUserProjects(custom_req)
                         .then((group_projects) => {
-                            custom_req = {"params": {"phone": req.body.phone}  }
+                            custom_req = {"params": {"phone": user.phone}  }
                             GroupModel.getUserGroupsByPhone(custom_req)
                                 .then((user_groups) => {
                                     if(user_groups == "user_not_found")
