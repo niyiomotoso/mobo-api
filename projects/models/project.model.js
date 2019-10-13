@@ -303,6 +303,9 @@ exports.addContributionToProject = (projectData)=>{
                     //}
 
                 var updateObject = {'contributions': contributions, 'totalContributedAmount': totalContributedAmount}; 
+                if(parseFloat(projectData.targetAmount) >= totalContributedAmountAfterNewContribution){
+                    updateObject.status = "CLOSED";
+                }
 
                 projectSession.update({ _id  : projectId}, {$set: updateObject},
                     function (err, projectSessionresult){
