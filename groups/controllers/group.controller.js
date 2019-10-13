@@ -25,14 +25,14 @@ exports.getUserGroups = (req, res) => {
 };
 
 exports.getGroupDetails = (req, res) => {
-    GroupModel.getGroupDetails(req.params.groupId)
-        .then((result) => {
-            if(result == 'group_not_found'){
-                res.status(200).send(response.failure("group_not_found", " No group found"));
-            }else{
-            res.status(200).send(response.success(result, "Loaded Successfully"));
-            }
-        });
+    // GroupModel.getGroupDetails(req.params.groupId)
+    //     .then((result) => {
+    //         if(result == 'group_not_found'){
+    //             res.status(200).send(response.failure("group_not_found", " No group found"));
+    //         }else{
+            res.status(200).send(response.success(1, "Loaded Successfully"));
+        //     }
+        // });
 };
 
 exports.getUserGroupsByPhone = (req, res) => {
