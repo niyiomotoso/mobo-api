@@ -115,12 +115,12 @@ exports.getMemebershipFee = (userId) => {
                 category = questions_and_answers[1].answer1;
             }
         
-            var categoryObject = {"EMPLOYEE": 1699.89,
-            "STUDENT":899.56,
-            "UNEMPLOYED":899.56,
-            "SMALL BUSINESS OWNER":3200.89,
-            "EMPLOYER OF LABOUR":3200.89,
-            "CONTRACTOR/FREELANCE": 1699.89
+            var categoryObject = {"EMPLOYEE":1686,
+            "STUDENT":886,
+            "UNEMPLOYED":886,
+            "SMALL BUSINESS OWNER":1686,
+            "EMPLOYER OF LABOUR":3860,
+            "CONTRACTOR/FREELANCE": 1686
             };
             resolve(categoryObject[category]);
         }

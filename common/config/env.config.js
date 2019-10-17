@@ -15,5 +15,8 @@ module.exports = {
         "NORMAL_USER": 1,
         "PAID_USER": 4,
         "ADMIN": 2048
-    }
+    },
+    "mailHost":'smtp.gmail.com',
+    "mailUsername": "contactleapng@gmail.com",
+    "mailPassword": "P@ssw0rdE360%%"
 };

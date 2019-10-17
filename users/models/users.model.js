@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const UserPortfolioModel = require('./users_portfolio.model');
 var common = require('../../common/generalEventEmitter.js');
 var commonEmitter = common.commonEmitter;
+var mailer = require('../../event_listeners/mailer');
 
 mongoose.connect(config.MONGO_URL);
 const Schema = mongoose.Schema;
@@ -96,7 +97,7 @@ exports.createUser = (userData) => {
                         function (err, created_user){
                             var newUserId = created_user._id;
                             let user_portfolio =  UserPortfolioModel.createNewAccount(newUserId);  
-
+                            mailer.userRegister(created_user.firstName, created_user.email, created_user.activationCode);
                             commonEmitter.emit('new_user_for_verification', userData.phone, userData.activationCode);
 
                             if(userData.referralPhone != undefined || userData.referralPhone != null){
