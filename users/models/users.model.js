@@ -4,6 +4,7 @@ const UserPortfolioModel = require('./users_portfolio.model');
 var common = require('../../common/generalEventEmitter.js');
 var commonEmitter = common.commonEmitter;
 var mailer = require('../../event_listeners/mailer');
+const crypto = require('crypto');
 
 mongoose.connect(config.MONGO_URL);
 const Schema = mongoose.Schema;
@@ -151,6 +152,82 @@ exports.resendActivationCode = (userData) => {
  
                          }
                      );
+                 }
+     });
+     });
+ }
+ };
+
+
+
+ exports.generateResetPin = (userData) => {
+    // userData.referralCode  = IDGenerate();
+     if(userData.phone != undefined){
+     return new Promise((resolve, reject )=>{
+          User.findOne({phone: userData.phone}, function(err, result){
+         
+         if(result  == null ){
+             resolve("phone_not_found");         
+         }
+         else{
+                     var activationCode =  generateVerficationCode();
+                     let salt = crypto.randomBytes(16).toString('base64');
+                     let hash = crypto.createHmac('sha512', salt).update(activationCode).digest("base64");
+                     userData.password = salt + "$" + hash;
+                     const user = mongoose.model('Users');
+                     var updateObject = {"password": userData.password};
+                     user.updateOne( {phone: userData.phone}, {$set: updateObject},
+                         function (err, updated_user){
+                            mailer.userResetPin(result.firstName, result.email, activationCode);
+                            commonEmitter.emit('new_user_reset_pin', userData.phone, activationCode); 
+                            if(updated_user.nModified == 1){
+                            resolve(userData);
+                            }
+ 
+                         }
+                     );
+                 }
+     });
+     });
+ }
+ };
+
+
+ exports.verifyNewPassword = (userData) => {
+    // userData.referralCode  = IDGenerate();
+     if(userData.phone != undefined){
+     return new Promise((resolve, reject )=>{
+          User.findOne({phone: userData.phone}, function(err, user){
+         
+         if(user  == null ){
+             resolve("phone_not_found");         
+         }
+         else{
+            let passwordFields = user.password.split('$');
+            let salt = passwordFields[0];
+            let hash = crypto.createHmac('sha512', salt).update(userData.currentPassword).digest("base64");
+            if (hash === passwordFields[1]) {
+
+                var newPass =  userData.newPassword;
+                let salt = crypto.randomBytes(16).toString('base64');
+                let hash = crypto.createHmac('sha512', salt).update(newPass).digest("base64");
+                let passwordHash = salt + "$" + hash;
+                const userModel = mongoose.model('Users');
+                var updateObject = {"password": passwordHash};
+                userModel.updateOne( {phone: userData.phone}, {$set: updateObject},
+                    function (err, updated_user){
+                      
+                       if(updated_user.nModified == 1){
+                       resolve(user);
+                       }
+
+                    }
+                );
+                
+            } else {
+                 resolve('invalid_new_pass');
+
+            }       
                  }
      });
      });

@@ -28,6 +28,14 @@ exports.routesConfig = function (app) {
     app.post('/users/resendActivationCode', [
         UsersController.resendActivationCode
     ]);
+
+    app.post('/users/resetPassword', [
+        UsersController.resetPassword
+    ]);
+
+    app.post('/users/verifyNewPassword', [
+         UsersController.verifyNewPassword
+    ]);
     
     app.post('/users/verifyPhone', [
         UsersController.verifyPhone

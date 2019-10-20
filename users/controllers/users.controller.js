@@ -43,6 +43,43 @@ exports.resendActivationCode = (req, res) => {
     }
 };
 
+exports.resetPassword = (req, res) => {
+    if(req.body == undefined || req.body.phone == undefined){
+        res.status(200).send(response.failure("phone_is_required", "phone number is required"));
+    }else{
+    UserModel.generateResetPin(req.body)
+        .then((result) => {
+            if(result == "phone_not_found"){
+                res.status(200).send(response.failure("phone_not_found", "phone not found"));
+    
+            }else{
+                res.status(200).send(response.success(result, "Password Reset Pin sent"));          
+            }
+        });
+    }
+};
+
+
+exports.verifyNewPassword = (req, res) => {
+    if(req.body == undefined || req.body.phone == undefined || req.body.currentPassword ==undefined || req.body.newPassword == undefined){
+        res.status(200).send(response.failure("phone_is_required", "phone number, current password and new password are required"));
+    }else{
+    UserModel.verifyNewPassword(req.body)
+        .then((result) => {
+            if(result == "phone_not_found"){
+                res.status(200).send(response.failure("phone_not_found", "phone not found"));
+    
+            }
+            else if(result == "invalid_new_pass"){
+                res.status(200).send(response.failure("invalid_new_pass", "invalid current password/pin"));
+    
+            }else{
+                res.status(200).send(response.success(result, "Password Reset Successful"));          
+            }
+        });
+    }
+};
+
 exports.list = (req, res) => {
     let limit = req.query.limit && req.query.limit <= 100 ? parseInt(req.query.limit) : 10;
     let page = 0;
