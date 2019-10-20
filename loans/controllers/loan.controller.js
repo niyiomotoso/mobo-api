@@ -42,7 +42,6 @@ exports.updateLoanStatus = (req, res) => {
         });
 };
 
-
 exports.addVouchToLoan = (req, res) => {
     if(req.body.amount == undefined || req.body.loanId  == undefined  || req.body.partnerUserId  == undefined  ){
         res.status(200).send(response.failure("incompelete_params", "incomplete parameter set"));
@@ -60,6 +59,34 @@ exports.addVouchToLoan = (req, res) => {
             }
             else if(result == 'vouch_amount_more_than_balance'){
                 res.status(200).send(response.failure("vouch_amount_more_than_balance", "Vouch amount should be less than your current balance"));
+            }
+            
+            
+            else{
+            res.status(200).send(response.success(result, "Loaded Successfully"));
+        }
+        
+        });
+    }
+};
+
+exports.paybackLoan = (req, res) => {
+    if(req.body.amount == undefined || req.body.loanId  == undefined ){
+        res.status(200).send(response.failure("incompelete_params", "incomplete parameter set"));
+    }
+    else{
+    LoanModel.paybackLoan(req.body)
+        .then((result) => {
+            if(result == 'loan_id_not_found'){
+                res.status(200).send(response.failure("loan_not_found", "loan session not found"));
+            }else if(result == 'user_not_found'){
+                res.status(200).send(response.failure("user_not_found", "user not found"));
+            }
+            else if(result == 'requested_amount_exceeded'){
+                res.status(200).send(response.failure("requested_amount_exceeded", "requested amount exceeded by new payback"));
+            }
+            else if(result == 'amount_more_than_balance'){
+                res.status(200).send(response.failure("amount_more_than_balance", "Payback amount should be less than your current balance"));
             }
             
             

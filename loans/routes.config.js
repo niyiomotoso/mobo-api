@@ -11,6 +11,10 @@ exports.routesConfig = function (app) {
         LoanController.addVouchToLoan
     ]);
 
+    app.post('/loans/payback_loan', [
+        LoanController.paybackLoan
+    ]);
+
     app.get('/loans/:userId/get_user_loans', [ 
        LoanController.getUserLoans
     ]);

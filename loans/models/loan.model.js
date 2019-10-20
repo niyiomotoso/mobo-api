@@ -9,6 +9,8 @@ const UserPortfolioModel = require('../../users/models/users_portfolio.model');
 const UserModel = require('../../users/models/users.model');
 mongoose.connect(config.MONGO_URL);
 const Schema = mongoose.Schema;
+var debitHistory = require("../../users/models/users_debit_history.model")
+
 
 const loanSessionSchema = new Schema({
     userId: {
@@ -17,6 +19,7 @@ const loanSessionSchema = new Schema({
       },
     amountRequested: Number,
     totalVouchAmount: Number,
+    totalPaybackAmount: Number,
     userPaybackTime: String,
     systemPaybackTime: String,
     status: String,
@@ -63,9 +66,13 @@ exports.getMaximumLoan = (userId) => {
 
                 });
                 totalAvailable = totalAvailable + parseFloat(balance);
-                console.log("totalAvailable", totalAvailable);
-                resolve(totalAvailable);
+                
+                loanSession.find ({"userId" : userId, "status": { $ne:  "REDEEMED" }  }, function( err, loan ){
+                    console.log("REDEEMED", loan);
+                let loanData = {"maximumLoanAmount": totalAvailable, "currentActiveLoan": loan}
+                resolve(loanData);
             });
+        });
         });
         }
        
@@ -79,13 +86,14 @@ exports.makeLoanRequest = (loanData)=> {
     var userId=  loanData.userId;
     var amountRequested =  loanData.amountRequested;
     var totalVouchAmount  = 0;
+    var totalPaybackAmount  = 0;
     var userPaybackTime = "";
     var systemPaybackTime =  "";
-    var status =  'ACTIVE';
+    var status =  'PENDING';
     var vouches = [];
     var payBacks = [];
-    let session = {"userId": userId, "amountRequested": amountRequested, "totalVouchAmount":
-        totalVouchAmount, "userPaybackTime" : userPaybackTime, "systemPaybackTime": systemPaybackTime,
+    let session = {"userId": userId, "amountRequested": amountRequested, "totalVouchAmount": totalVouchAmount, 
+    "totalPaybackAmount":totalPaybackAmount, "userPaybackTime" : userPaybackTime, "systemPaybackTime": systemPaybackTime,
         "status": status, "vouches": vouches, "payBacks": payBacks
      };
 
@@ -96,14 +104,14 @@ exports.makeLoanRequest = (loanData)=> {
         if( portfolio == undefined || portfolio == null ){
              resolve('user_not_found'); 
         }else{
-             parent.getMaximumLoan(userId).then( (maximumAllowed)=>{    
+             parent.getMaximumLoan(userId).then( (loanData)=>{    
                 const loan = new loanSession(session);
-                console.log(parseFloat(maximumAllowed), parseFloat(amountRequested) );
+                console.log(parseFloat(loanData.maximumLoanAmount), parseFloat(amountRequested) );
             
-                if( parseFloat(maximumAllowed) < parseFloat(amountRequested) ){
+                if( parseFloat(loanData.maximumLoanAmount) < parseFloat(amountRequested) ){
                     resolve('limit_exceeded');
                 }else {                  
-                        loanSession.find ({"status" : "ACTIVE", "userId": userId}, function( err, result ){
+                        loanSession.find ({ "status": { $ne: "REDEEMED" } , "userId": userId}, function( err, result ){
                             if(result.length >= 1){
                                 resolve("one_active_loan");
                             }else{
@@ -224,13 +232,106 @@ exports.addVouchToLoan = (vouchData)=>{
 
 };
 
+
+exports.paybackLoan = (paybackData)=>{
+    return new Promise( (resolve, reject)=> {
+        var loanId = paybackData.loanId;
+        var amount = paybackData.amount;
+
+        const Users = mongoose.model('Users');
+
+        loanSession.findOne ({_id : loanId}, function( err, loanData ){
+            if( loanData == undefined || loanData == null )
+              resolve('loan_id_not_found');
+            else{
+        var userId = loanData.userId;
+        const UserPortfolio = mongoose.model('UserPortfolio');
+        UserPortfolio.findOne ({ userId : userId}, function( err, portfolio ){
+            if( portfolio != null ){
+                var balance = parseFloat(portfolio.balance );
+                if( balance < parseFloat( amount) ){
+                 resolve('amount_more_than_balance'); 
+                }
+            }else{
+                resolve('user_not_found'); 
+            }
+
+            Users.findOne ({ _id : userId}, function( err, partneruser ){
+                if( partneruser == undefined || partneruser == null ){
+                    resolve('user_not_found');
+                    
+                }
+           else{
+            let payBacks = loanData.payBacks;
+           
+            var dateTime =  Date.now();
+            dateTime = moment(dateTime).format("YYYY-MM-DD HH:mm:ss");
+            
+            if(loanData.totalPaybackAmount == undefined )
+                loanData.totalPaybackAmount = 0;
+
+            var totalVouchAmountAfterNewPayback =  parseFloat(loanData.totalPaybackAmount) + parseFloat( amount);
+            console.log("totalVouchAmountAfterNewPayback", totalVouchAmountAfterNewPayback);
+            if(totalVouchAmountAfterNewPayback > parseFloat(loanData.amountRequested) ){
+                resolve('requested_amount_exceeded');
+            }
+            else{
+                var totalPaybackAmount =  totalVouchAmountAfterNewPayback;
+                payBacks.push({ "userId": userId, "amount": amount, "status": 'PAID', "createdAt": dateTime,  'name':partneruser.firstName+" "+partneruser.lastName});     
+                                           
+            var balanceLeft =  parseFloat( portfolio.balance) -  parseFloat(amount);
+            var balanceObject = {'balance': balanceLeft}; 
+            
+                var updateObject = {'payBacks': payBacks, 'totalPaybackAmount': totalPaybackAmount}; 
+                if(totalPaybackAmount >=   parseFloat(loanData.amountRequested) ){
+                    updateObject.status = "REDEEMED";
+                }
+
+                UserPortfolio.update ( { userId : userId },{$set: balanceObject},  function( err, res ){
+                    if( res){
+                    loanSession.update({ _id  : loanId}, {$set: updateObject},
+                    function (err, result){
+                        console.log("result", result);
+                        if(result){     
+                            loanSession.findOne({_id : loanId}, function(err, result){ 
+                                
+                                var transaction =  {"balanceAfter": balanceLeft,
+                                    "balanceBefore": portfolio.balance,
+                                    "amount": parseFloat(amount).toFixed(2),
+                                    "fromUserId" : userId,
+                                    "fromName" : partneruser.firstName+" "+partneruser.lastName,
+                                    "toUserId" : "LEAP",
+                                    "toName" : "LEAP",
+                                    "transactionType" : "LOAN PAYBACK",
+                                    "transactionStatus" : "DONE" };
+                  
+                                    debitHistory.addNewTransaction(transaction);
+
+                            resolve({ "loanId": loanId, "amountRequested": result.amountRequested, "totalPaybackAmount": result.totalPaybackAmount});
+                        }); 
+                    }
+                            
+                    });
+                }
+                });
+            }
+            }
+        });
+        });
+    }
+    });
+    });
+
+};
+
+
 exports.updateLoanStatus = (loanId, status)=>{
     return new Promise( (resolve, reject)=> {
        
         loanSession.findOne ({_id : loanId}, function( err, loanData ){
             if( loanData == undefined || loanData == null )
               resolve('loan_id_not_found');
-            else if(status == "ACCEPTED" || status == "CANCELED" ){
+            else if(status == "ACCEPTED" || status == "CANCELED" || status == "PAID" ){
            
                 var updateObject = {'status': status};  
                 loanSession.updateOne({ _id  : loanId}, {$set: updateObject},
