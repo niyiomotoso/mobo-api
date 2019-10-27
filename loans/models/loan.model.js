@@ -69,7 +69,8 @@ exports.getMaximumLoan = (userId) => {
                 
                 loanSession.find ({"userId" : userId, "status": { $ne:  "REDEEMED" }  }, function( err, loan ){
                     console.log("REDEEMED", loan);
-                let loanData = {"maximumLoanAmount": totalAvailable, "currentActiveLoan": loan}
+                //let loanData = {"maximumLoanAmount": totalAvailable, "currentActiveLoan": loan}
+                let loanData = {"maximumLoanAmount": 100000, "currentActiveLoan": loan}
                 resolve(loanData);
             });
         });

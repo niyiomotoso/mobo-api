@@ -6,6 +6,33 @@ const config = require('../common/config/env.config');
 const multer = require('multer');
 const path = require('path');
 const crypto = require('crypto');
+const { google } = require('googleapis');
+const multerDrive = require('multer-drive');
+var privatekey = require("../common/config/leapng-ac9189a679b4.json")
+// var auth = new google.auth.JWT(
+//   privatekey.client_email,
+//   null,
+//   privatekey.private_key,
+//   ['https://www.googleapis.com/auth/drive']
+// );
+
+// // Authenticate request
+// auth.authorize(function (err, tokens) {
+//   if (err) {
+//       console.log(err);
+//     console.log("Google autorization failed");
+//     return;
+//   } else {
+//     console.log(tokens);
+//     console.log("Google autorization complete");
+//   }
+// });
+
+// const auth = new google.auth.JWT({
+//     email: config.mailUsername,
+//     key: "AIzaSyB6Z-HuKENzjHvHVBvj7iW7vHEffNleA4c", 
+//     scopes: ['https://www.googleapis.com/auth/drive'],
+// });
 
 var storage = multer.diskStorage({
     destination: path.join(__dirname, '../public/profile_pictures'),
@@ -20,6 +47,11 @@ const upload = multer({
     storage: storage,
 }
 );
+
+// const upload = multer({
+//     storage: multerDrive(auth),
+//     // Rest of multer's options
+// });
 
 exports.routesConfig = function (app) {
     app.post('/users', [

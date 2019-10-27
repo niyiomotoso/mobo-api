@@ -160,7 +160,10 @@ exports.getUserProjects = (req)=>{
             user = user.toObject();
             delete user.password;
         if(projectType != undefined){
-            projectSession.find ({"userId" : userId, "projectType": projectType}, function( err, result ){
+            projectSession.find ({"userId" : userId, "projectType": projectType}, null, {
+                sort:{
+                 updatedAt: -1 //Sort by Date Added DESC
+                }}, function( err, result ){
                 if(result == null){
                     resolve(null);
                 }
@@ -173,7 +176,10 @@ exports.getUserProjects = (req)=>{
                 resolve(result);
             });
         }else{
-            projectSession.find ({"userId" : userId}, function( err, result ){
+            projectSession.find ({"userId" : userId}, null, {
+                sort:{
+                 updatedAt: -1 //Sort by Date Added DESC
+                }}, function( err, result ){
                 if(result == null){
                     resolve(null);
                 }
@@ -402,7 +408,7 @@ exports.getUserPartnerProjects  = (userId)=>{
                                 ,
                                 {$unwind: '$owner'}
                                
-                                ]).exec().then((data) => {
+                                ]).sort({ updatedAt : 'desc'}).exec().then((data) => {
                                     console.log("data",data);
                                     resolve(data);
                                   }).catch((err) => {
