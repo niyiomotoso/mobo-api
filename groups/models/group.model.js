@@ -50,7 +50,7 @@ exports.makeGroupRequest = (groupData)=> {
     var status =  'ACTIVE';
     var groupImage =  '';
     if(groupData.groupImage != undefined && groupData.groupImage != null){
-        groupImage = config.group_image_path+groupData.groupImage;
+        groupImage = config.cdn_path+groupData.groupImage;
     }
     var dateTime =  Date.now();
     dateTime = moment(dateTime).format("YYYY-MM-DD HH:mm:ss");
@@ -426,7 +426,7 @@ exports.updateGroupDetails = (groupId, groupData) => {
             else{
             
                 if(groupData.groupImage != undefined){
-                    groupData.groupImage = config.group_image_path+groupData.groupImage;
+                    groupData.groupImage = config.cdn_path+groupData.groupImage;
                 }
             groupData.updated_at = new Date();
             for (let i in groupData) {

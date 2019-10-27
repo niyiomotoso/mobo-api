@@ -158,8 +158,9 @@ exports.removeById = (req, res) => {
 };
 
 exports.uploadUserProfilePic = (req, res) => {
-   if(req.file != undefined && req.file.filename != undefined){
-   UserModel.uploadUserProfilePic(req.params.userId, req.file.filename)
+    console.log(req);
+   if(req.file != undefined && req.file.path != undefined){
+   UserModel.uploadUserProfilePic(req.params.userId, req.file.path)
    .then((result) => {
        //res.status(200).send({result});
     if(result == "user_not_found"){

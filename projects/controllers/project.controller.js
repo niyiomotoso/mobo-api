@@ -90,10 +90,10 @@ exports.makeProjectRequest = (req, res) => {
     }
     else{
         if(req.body.projectType  == "PUBLIC"){
-            if( req.file == undefined || req.file.filename == undefined  || req.body.description == undefined ){
+            if( req.file == undefined || req.file.path == undefined  || req.body.description == undefined ){
                 res.status(200).send(response.failure("public_project_params_not_set", "cover image and description must be set"));
             }else{
-                req.body.coverImage = req.file.filename;
+                req.body.coverImage = req.file.path;
             }
         }
         ProjectModel.makeProjectRequest(req.body)

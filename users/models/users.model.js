@@ -294,7 +294,7 @@ exports.uploadUserProfilePic = (userId, filePath) => {
          }
          else{
             //user.profilePicPath = filePath;
-            user.profilePicPath = config.profile_pic_path+filePath;
+            user.profilePicPath = config.cdn_path+filePath;
             user.save(function (err, updatedUser) {
                 if (err) return reject(err);
                 updatedUser = updatedUser.toJSON();        

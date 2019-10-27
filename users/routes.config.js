@@ -4,11 +4,9 @@ const UserReferralsController = require('./controllers/user_referrals.controller
 const UserPartnersController = require('./controllers/user_partners.controller');
 const config = require('../common/config/env.config');
 const multer = require('multer');
+var FTPStorage = require('multer-ftp')
 const path = require('path');
 const crypto = require('crypto');
-const { google } = require('googleapis');
-const multerDrive = require('multer-drive');
-var privatekey = require("../common/config/leapng-ac9189a679b4.json")
 // var auth = new google.auth.JWT(
 //   privatekey.client_email,
 //   null,
@@ -16,17 +14,7 @@ var privatekey = require("../common/config/leapng-ac9189a679b4.json")
 //   ['https://www.googleapis.com/auth/drive']
 // );
 
-// // Authenticate request
-// auth.authorize(function (err, tokens) {
-//   if (err) {
-//       console.log(err);
-//     console.log("Google autorization failed");
-//     return;
-//   } else {
-//     console.log(tokens);
-//     console.log("Google autorization complete");
-//   }
-// });
+
 
 // const auth = new google.auth.JWT({
 //     email: config.mailUsername,
@@ -34,24 +22,66 @@ var privatekey = require("../common/config/leapng-ac9189a679b4.json")
 //     scopes: ['https://www.googleapis.com/auth/drive'],
 // });
 
-var storage = multer.diskStorage({
-    destination: path.join(__dirname, '../public/profile_pictures'),
-    filename: function (req, file, cb) {
-    crypto.randomBytes(10, function(err, buffer) {
-        cb(null, new Date().getTime()+buffer.toString('hex') + path.extname(file.originalname));
-    });
-}
-});
+// Authenticate request
+// auth.authorize(function (err, tokens) {
+//     if (err) {
+//         console.log(err);
+//       console.log("Google autorization failed");
+//       return;
+//     } else {
+//       console.log(tokens);
+//       console.log("Google autorization complete");
+//     }
+//   });
 
-const upload = multer({
-    storage: storage,
-}
-);
+// var storage = multer.diskStorage({
+//     destination: path.join(__dirname, '../public/profile_pictures'),
+//     filename: function (req, file, cb) {
+//     crypto.randomBytes(10, function(err, buffer) {
+//         cb(null, new Date().getTime()+buffer.toString('hex') + path.extname(file.originalname));
+//     });
+// }
+// });
+
+ 
+var upload = multer({
+  storage: new FTPStorage({
+    basepath: config.profile_pic_path,
+    ftp: {
+      host: 'ftp.leap.ng',
+      secure: false, // enables FTPS/FTP with TLS
+      user: 'ftpuser@leap.ng',
+      password: '[^B66WQ}KjK;'
+    }
+  })
+})
+// const upload = multer({
+//     storage: storage,
+// }
+// );
 
 // const upload = multer({
 //     storage: multerDrive(auth),
 //     // Rest of multer's options
 // });
+// var storage = sftpStorage({
+//     sftp: {
+//         host: 'ftp.leap.ng',
+//       port: 22,
+//       username: 'ftpuser@leap.ng',
+//       password: '[^B66WQ}KjK;'
+//     },
+//     destination: function (req, file, cb) {
+//       cb(null, '/')
+//     },
+//     filename: function (req, file, cb) {
+//           crypto.randomBytes(10, function(err, buffer) {
+//         cb(null, new Date().getTime()+buffer.toString('hex') + path.extname(file.originalname));
+//     });
+//     }
+//   })
+   
+//   var upload = multer({ storage: storage })
 
 exports.routesConfig = function (app) {
     app.post('/users', [

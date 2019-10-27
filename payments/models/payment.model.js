@@ -146,7 +146,7 @@ exports.logManualTransferPayment = (paymentData) => {
         var datetime = d.getTime();
         var paymentEvidence = '';
         if(paymentData.paymentEvidence != undefined){
-            paymentEvidence = config.payment_image_path+paymentData.paymentEvidence;
+            paymentEvidence = config.cdn_path+paymentData.paymentEvidence;
         }
 
         let session = {"userId": userId, "reference": datetime, "amount": pending_amount, "status": "PENDING", "channel": "BANK_TRANSFER", "paymentEvidence":paymentEvidence, "paymentDate" : paymentDate, "depositorName" : depositorName};
