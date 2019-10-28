@@ -89,7 +89,7 @@ exports.makeProjectRequest = (req, res) => {
         res.status(200).send(response.failure("groupid_not_set", "Group ID must be set for group projects"));
     }
     else{
-        if(req.body.projectType  == "PUBLIC"){
+        if(req.body.projectType  == "PUBLIC" || req.body.projectType  == "GROUP"){
             if( req.file == undefined || req.file.path == undefined  || req.body.description == undefined ){
                 res.status(200).send(response.failure("public_project_params_not_set", "cover image and description must be set"));
             }else{
