@@ -284,7 +284,7 @@ function getUserDetailsFromArray(field_to_search, fieldArray){
             const Users = mongoose.model('Users');
             userDArray = [];    
             field_to_search = field_to_search.toString();     
-            Users.find({ '_id' : { $in: fieldArray } }, 'firstName lastName phone'  )
+            Users.find({ '_id' : { $in: fieldArray } }, 'firstName lastName phone profilePicPath'  )
              .exec(function(err, userDArray) {
                 resolve(userDArray);
             });

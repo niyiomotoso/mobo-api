@@ -120,8 +120,8 @@ exports.updateGroupDetails = (req, res) => {
     GroupModel.updateGroupDetails(req.params.groupId, req.body)
         .then((result) => {
             
-            if(result == 'group_id_not_found'){
-                res.status(200).send(response.failure("group_id_not_found", "group not found"));
+            if(result == 'group_not_found'){
+                res.status(200).send(response.failure("group_not_found", "group not found"));
             }else if(result == 'invalid_status'){
                 res.status(200).send(response.failure("invalid_status", "invalid status"));
             }else{
