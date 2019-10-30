@@ -59,18 +59,25 @@ exports.makeGroupRequest = (groupData)=> {
         };
  
     const group = new groupSession(session);
-  
+    const user  = mongoose.model('Users');
     return new Promise ( ( resolve, reject) => {
+
+        user.findOne({'_id': creatorUserId}, function(err, group) {
+            if( group == null || group.length == 0 ){
+                resolve('user_not_found');
+            }else{
+
+
         group.save(
             function(err, savedSession){
                 resolve(savedSession);
             }
         );
         }
-    )
-
+    }
+    );
+    });
 };
-
 
 exports.getGroupDetails = (groupId)=>{
   

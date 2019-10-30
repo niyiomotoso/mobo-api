@@ -99,7 +99,11 @@ exports.makeGroupRequest = (req, res) => {
             }  
         GroupModel.makeGroupRequest(req.body)
             .then((result) => {
+                 if(result == 'user_not_found'  ){
+                    res.status(200).send(response.failure("user_not_found", "creator not found"));
+                }else{
                 res.status(200).send(response.success(result, "Loaded Successfully"));
+            }
             });
     }
 };
