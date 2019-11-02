@@ -1,6 +1,6 @@
 const config = require('../../common/config/env.config.js');
 const mongoose = require('mongoose');
-mongoose.connect(config.MONGO_URL);
+mongoose.connect(process.env.MONGO_URL);
 const Schema = mongoose.Schema;
 
 const assessmentSchema = new Schema({

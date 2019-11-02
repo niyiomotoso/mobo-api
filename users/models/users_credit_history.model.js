@@ -5,7 +5,7 @@ var common = require('../../common/generalEventEmitter.js');
 var commonEmitter = common.commonEmitter;
 var moment = require('moment');
 
-mongoose.connect(config.MONGO_URL);
+mongoose.connect(process.env.MONGO_URL);
 const Schema = mongoose.Schema;
 
 const creditHistorySchema = new Schema({

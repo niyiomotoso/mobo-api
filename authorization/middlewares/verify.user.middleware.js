@@ -43,7 +43,7 @@ exports.isPasswordAndUserMatch = (req, res, next) => {
                 if (hash === passwordFields[1]) {
                     user = user.toJSON();
                     user.userId = user._id;
-                    user.profilePicPath = config.profile_pic_path+user.profilePicPath;
+                    user.profilePicPath = user.profilePicPath;
                     delete user.password;
                     req.body = user;
                     return next();

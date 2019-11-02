@@ -6,7 +6,7 @@ var commonEmitter = common.commonEmitter;
 var mailer = require('../../event_listeners/mailer');
 const crypto = require('crypto');
 
-mongoose.connect(config.MONGO_URL);
+mongoose.connect(process.env.MONGO_URL);
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema({

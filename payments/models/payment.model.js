@@ -11,7 +11,7 @@ const UserPortfolioModel = require('../../users/models/users_portfolio.model');
 const UserModel = require('../../users/models/users.model');
 const LeapPaymentModel = require('../../payments/models/leap_payment.model');
 const assessmentModel = require('../../assessment_questions/models/assessment_question.model');
-mongoose.connect(config.MONGO_URL);
+mongoose.connect(process.env.MONGO_URL);
 const Schema = mongoose.Schema;
 var debitHistory = require("../../users/models/users_debit_history.model")
 

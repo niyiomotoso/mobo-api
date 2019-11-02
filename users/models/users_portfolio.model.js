@@ -6,8 +6,7 @@ var commonEmitter = common.commonEmitter;
 var moment = require('moment');
 var debitHistory = require("../models/users_debit_history.model")
 var creditHistory = require("../models/users_credit_history.model")
-
-mongoose.connect(config.MONGO_URL);
+mongoose.connect(process.env.MONGO_URL);
 const Schema = mongoose.Schema;
 
 const userPortfolioSchema = new Schema({

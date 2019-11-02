@@ -7,7 +7,7 @@ var commonEmitter = common.commonEmitter;
 var moment = require('moment');
 const UserPortfolioModel = require('../../users/models/users_portfolio.model');
 const UserModel = require('../../users/models/users.model');
-mongoose.connect(config.MONGO_URL);
+mongoose.connect(process.env.MONGO_URL);
 const Schema = mongoose.Schema;
 var debitHistory = require("../../users/models/users_debit_history.model")
 

@@ -5,12 +5,12 @@ const nodemailer = require('nodemailer');
 
 async function userRegister(firstname, email, token) {
                       let transporter = nodemailer.createTransport({
-                        host: config.mailHost,
+                        host: process.env.mailHost,
                         port: 465,
                         secure: true, 
                         auth: {
-                            user: config.mailUsername, 
-                            pass: config.mailPassword
+                            user: process.env.mailUsername, 
+                            pass: process.env.mailPassword
                         }
                     });
 
@@ -28,12 +28,12 @@ async function userRegister(firstname, email, token) {
 
     async function userResetPin(firstname, email, pin) {
                     let transporter = nodemailer.createTransport({
-                      host: config.mailHost,
+                      host: process.env.mailHost,
                       port: 465,
                       secure: true, 
                       auth: {
-                          user: config.mailUsername, 
-                          pass: config.mailPassword
+                          user: process.env.mailUsername, 
+                          pass: process.env.mailPassword
                       }
                   });
 

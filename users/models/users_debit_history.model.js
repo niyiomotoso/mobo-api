@@ -4,8 +4,8 @@ const UserModel = require('./users.model');
 var common = require('../../common/generalEventEmitter.js');
 var commonEmitter = common.commonEmitter;
 var moment = require('moment');
-
-mongoose.connect(config.MONGO_URL);
+require('dotenv').config()
+mongoose.connect(process.env.MONGO_URL);
 const Schema = mongoose.Schema;
 
 const debitHistorySchema = new Schema({

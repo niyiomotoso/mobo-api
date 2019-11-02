@@ -8,7 +8,7 @@ var smsEventListener = require('../../event_listeners/smsEventListener.js');
 var moment = require('moment');
 const UserPortfolioModel = require('../../users/models/users_portfolio.model');
 const UserModel = require('../../users/models/users.model');
-mongoose.connect(config.MONGO_URL);
+mongoose.connect(process.env.MONGO_URL);
 const Schema = mongoose.Schema;
 
 const groupSessionSchema = new Schema({
