@@ -94,8 +94,8 @@ exports.makeGroupRequest = (req, res) => {
         res.status(200).send(response.failure("group_creator_not_set", "creator not set"));
     }
     else{   
-            if( req.file != undefined && req.file.path != undefined  ){
-                req.body.groupImage = req.file.path;
+            if( req.file != undefined && req.file.location != undefined  ){
+                req.body.groupImage = req.file.location;
             }  
         GroupModel.makeGroupRequest(req.body)
             .then((result) => {
@@ -113,8 +113,8 @@ exports.updateGroupDetails = (req, res) => {
     if(req.params.groupId == undefined   ){
         res.status(200).send(response.failure("group_id_not_set", "Group ID required"));
     }else{
-        if( req.file != undefined && req.file.filename != undefined  ){
-            req.body.groupImage = req.file.filename;
+        if( req.file != undefined && req.file.location != undefined  ){
+            req.body.groupImage = req.file.location;
         }  
 
     GroupModel.updateGroupDetails(req.params.groupId, req.body)

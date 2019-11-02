@@ -293,8 +293,8 @@ exports.uploadUserProfilePic = (userId, filePath) => {
              resolve("user_not_found");         
          }
          else{
-            //user.profilePicPath = filePath;
-            user.profilePicPath = config.cdn_path+filePath;
+            user.profilePicPath = filePath;
+            //user.profilePicPath = config.cdn_path+filePath;
             user.save(function (err, updatedUser) {
                 if (err) return reject(err);
                 updatedUser = updatedUser.toJSON();        

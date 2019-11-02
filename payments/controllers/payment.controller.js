@@ -37,11 +37,11 @@ exports.logManualTransferPayment = (req, res) => {
     if(req.body.userId == undefined || req.body.amount == undefined || req.body.depositorName == undefined || req.body.paymentDate == undefined ){
         res.status(200).send(response.failure("incomplete_params", "User, Amount, Depositor's name and Payment date must be specified"));
     }
-    // else if(req.file == undefined || req.file.filename == undefined   ){
+    // else if(req.file == undefined || req.file.location == undefined   ){
     //     res.status(200).send(response.failure("incomplete_params", "Payment evidence must be uploaded"));
     // }
     else{
-        //req.body.paymentEvidence = req.file.filename;
+        //req.body.paymentEvidence = req.file.location;
         req.body.paymentEvidence = "";
         PaymentModel.logManualTransferPayment(req.body)
             .then((result) => {
@@ -148,10 +148,10 @@ exports.makePaymentRequest = (req, res) => {
     }
     else{
         if(req.body.paymentType  == "PUBLIC"){
-            if( req.file == undefined || req.file.path == undefined  || req.body.description == undefined ){
+            if( req.file == undefined || req.file.location == undefined  || req.body.description == undefined ){
                 res.status(200).send(response.failure("public_payment_params_not_set", "cover image and description must be set"));
             }else{
-                req.body.coverImage = req.file.path;
+                req.body.coverImage = req.file.location;
             }
         }
         PaymentModel.makePaymentRequest(req.body)

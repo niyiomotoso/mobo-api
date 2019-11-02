@@ -1,33 +1,32 @@
 const GroupController = require('./controllers/group.controller');
 const multer = require('multer');
+const config = require('../common/config/env.config');
 const path = require('path');
 const crypto = require('crypto');
-const config = require('../common/config/env.config');
-var FTPStorage = require('multer-ftp')
-// var storage = multer.diskStorage({
-//     destination: path.join(__dirname, '../public/group_pictures'),
-//     filename: function (req, file, cb) {
-//     crypto.randomBytes(10, function(err, buffer) {
-//         cb(null, new Date().getTime()+buffer.toString('hex') + path.extname(file.originalname));
-//     });
-// }
-// });
+var AWS = require('aws-sdk');
+var multerS3 = require('multer-s3');
 
-// const upload = multer({
-//     storage: storage,
-// }
-// );
+ 
+AWS.config.update({
+    accessKeyId: config.aws_key,
+    secretAccessKey: config.aws_secret
+  });
+
+var s3 = new AWS.S3();
 var upload = multer({
-    storage: new FTPStorage({
-      basepath: config.group_image_path,
-      ftp: {
-        host: 'ftp.leap.ng',
-        secure: false, // enables FTPS/FTP with TLS
-        user: 'ftpuser@leap.ng',
-        password: '[^B66WQ}KjK;'
-      }
-    })
+  storage: multerS3({
+    s3: s3,
+    bucket: 'leapuploads',
+    metadata: function (req, file, cb) {
+       cb(null, {fieldName: file.fieldname});
+    },
+    key: function (req, file, cb) {
+        crypto.randomBytes(10, function(err, buffer) {
+            cb(null, new Date().getTime()+buffer.toString('hex') + path.extname(file.originalname));
+        });
+    }
   })
+});
 
 exports.routesConfig = function (app) {
     app.post('/groups/create_group', upload.single('groupImage'), [

@@ -97,7 +97,8 @@ exports.makeProjectRequest = (projectData)=> {
     var projectType = projectData.projectType;
     var coverImage =  '';
     if(projectData.coverImage != undefined && projectData.coverImage != null ){
-        coverImage = config.cdn_path+projectData.coverImage;
+        //coverImage = config.cdn_path+projectData.coverImage;
+        coverImage = projectData.coverImage;
     }
 
     let session = {"userId": userId, "targetAmount": targetAmount, "description": description, "targetMode":

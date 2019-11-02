@@ -4,9 +4,35 @@ const UserReferralsController = require('./controllers/user_referrals.controller
 const UserPartnersController = require('./controllers/user_partners.controller');
 const config = require('../common/config/env.config');
 const multer = require('multer');
-var FTPStorage = require('multer-ftp')
 const path = require('path');
 const crypto = require('crypto');
+var AWS = require('aws-sdk');
+var multerS3 = require('multer-s3');
+
+ 
+AWS.config.update({
+    accessKeyId: config.aws_key,
+    secretAccessKey: config.aws_secret
+  });
+
+var s3 = new AWS.S3();
+var upload = multer({
+  storage: multerS3({
+    s3: s3,
+    bucket: 'leapuploads',
+    metadata: function (req, file, cb) {
+       cb(null, {fieldName: file.fieldname});
+    },
+    key: function (req, file, cb) {
+        crypto.randomBytes(10, function(err, buffer) {
+            cb(null, new Date().getTime()+buffer.toString('hex') + path.extname(file.originalname));
+        });
+    }
+  })
+});
+
+
+
 // var auth = new google.auth.JWT(
 //   privatekey.client_email,
 //   null,
@@ -22,7 +48,11 @@ const crypto = require('crypto');
 //     scopes: ['https://www.googleapis.com/auth/drive'],
 // });
 
-// Authenticate request
+// var upload = multer({
+//     storage: multerGdrive(auth)
+//   })
+
+//Authenticate request
 // auth.authorize(function (err, tokens) {
 //     if (err) {
 //         console.log(err);
@@ -44,17 +74,17 @@ const crypto = require('crypto');
 // });
 
  
-var upload = multer({
-  storage: new FTPStorage({
-    basepath: config.profile_pic_path,
-    ftp: {
-      host: 'ftp.leap.ng',
-      secure: false, // enables FTPS/FTP with TLS
-      user: 'ftpuser@leap.ng',
-      password: '[^B66WQ}KjK;'
-    }
-  })
-})
+// var upload = multer({
+//   storage: new FTPStorage({
+//     basepath: config.profile_pic_path,
+//     ftp: {
+//       host: 'ftp.leap.ng',
+//       secure: false, // enables FTPS/FTP with TLS
+//       user: 'ftpuser@leap.ng',
+//       password: '[^B66WQ}KjK;'
+//     }
+//   })
+// })
 // const upload = multer({
 //     storage: storage,
 // }
@@ -64,24 +94,7 @@ var upload = multer({
 //     storage: multerDrive(auth),
 //     // Rest of multer's options
 // });
-// var storage = sftpStorage({
-//     sftp: {
-//         host: 'ftp.leap.ng',
-//       port: 22,
-//       username: 'ftpuser@leap.ng',
-//       password: '[^B66WQ}KjK;'
-//     },
-//     destination: function (req, file, cb) {
-//       cb(null, '/')
-//     },
-//     filename: function (req, file, cb) {
-//           crypto.randomBytes(10, function(err, buffer) {
-//         cb(null, new Date().getTime()+buffer.toString('hex') + path.extname(file.originalname));
-//     });
-//     }
-//   })
-   
-//   var upload = multer({ storage: storage })
+
 
 exports.routesConfig = function (app) {
     app.post('/users', [

@@ -50,7 +50,8 @@ exports.makeGroupRequest = (groupData)=> {
     var status =  'ACTIVE';
     var groupImage =  '';
     if(groupData.groupImage != undefined && groupData.groupImage != null){
-        groupImage = config.cdn_path+groupData.groupImage;
+        //groupImage = config.cdn_path+groupData.groupImage;
+        groupImage = groupData.groupImage;
     }
     var dateTime =  Date.now();
     dateTime = moment(dateTime).format("YYYY-MM-DD HH:mm:ss");

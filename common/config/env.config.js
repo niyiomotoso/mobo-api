@@ -19,5 +19,7 @@ module.exports = {
     },
     "mailHost":'smtp.gmail.com',
     "mailUsername": "contactleapng@gmail.com",
-    "mailPassword": "P@ssw0rdE360%%"
+    "mailPassword": "P@ssw0rdE360%%",
+    "aws_key":"AKIAI3FUDKZOT6AQ5FOQ",
+    "aws_secret":"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" 
 };
