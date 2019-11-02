@@ -8,11 +8,11 @@ const path = require('path');
 const crypto = require('crypto');
 var AWS = require('aws-sdk');
 var multerS3 = require('multer-s3');
-
+require('dotenv').config()
  
 AWS.config.update({
-    accessKeyId: process.env['AWS_KEY'],
-    secretAccessKey: process.env['AWS_SECRET']
+    accessKeyId: process.env.AWS_KEY,
+    secretAccessKey: process.env.AWS_SECRET
   });
 
 var s3 = new AWS.S3();
