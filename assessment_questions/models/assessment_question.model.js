@@ -116,8 +116,8 @@ exports.getMemebershipFee = (userId) => {
             }
         
             var categoryObject = {"EMPLOYEE":1686,
-            "STUDENT":886,
-            "UNEMPLOYED":886,
+            "STUDENT":986,
+            "UNEMPLOYED":986,
             "SMALL BUSINESS OWNER":1686,
             "EMPLOYER OF LABOUR":3860,
             "CONTRACTOR/FREELANCE": 1686
