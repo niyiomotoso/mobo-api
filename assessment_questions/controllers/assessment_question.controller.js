@@ -70,7 +70,7 @@ exports.getMemebershipStatus = (req, res) => {
                 res.status(200).send(response.failure("assessment_not_found", "assessment not found"));
            
             }else{
-               let result2 = {"student" : 899.56,
+               let result2 = {"student" : 999.56,
 
                 "employee": 1699.89,
                 
