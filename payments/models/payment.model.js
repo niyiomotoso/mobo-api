@@ -70,7 +70,7 @@ exports.logPaystackPayment = (paymentData) => {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': 'BEARER sk_test_a3444f7e4420ec600be5b0fec811136c5da8ebb1'
+                        'Authorization': 'BEARER '+process.env.PAYSTACK_SECRET_KEY
                       }
                     };
 
