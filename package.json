@@ -31,7 +31,7 @@
     "lodash": ">=4.17.13",
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.13",
-    "mongoose": "^5.1.1",
+    "mongoose": "^5.7.5",
     "multer": "^1.4.2",
     "multer-ftp": "^1.2.0",
     "multer-gdrive": "^1.6.0",
