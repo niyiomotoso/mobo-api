@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-var common = require('../../common/generalEventEmitter.js');
 mongoose.connect(process.env.MONGO_URL);
 const Schema = mongoose.Schema;
 const logSchema = new Schema({
