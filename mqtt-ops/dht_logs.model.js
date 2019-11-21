@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-mongoose.connect(process.env.MONGO_URL);
+mongoose.connect("mongodb://mobo_user:Happy1234@ds029817.mlab.com:29817/mobodb");
 const Schema = mongoose.Schema;
 const logSchema = new Schema({
     temperature: String,

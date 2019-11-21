@@ -13,5 +13,7 @@ exports.routesConfig = function (app) {
         SettingsController.getAll
      ]);
     
-    
+    app.get("/", (req, res) => {
+        res.send({ response: "I am alive" }).status(200);
+      });
 };

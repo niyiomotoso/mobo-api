@@ -1,12 +1,6 @@
 const config = require('../../common/config/env.config.js');
 const mongoose = require('mongoose');
-const request = require('request')
-const EventEmitter = require('events');
-var common = require('../../common/generalEventEmitter.js');
-var commonEmitter = common.commonEmitter;
-var smsEventListener = require('../../event_listeners/smsEventListener.js');
-var moment = require('moment');
-mongoose.connect(process.env.MONGO_URL);
+mongoose.connect("mongodb://mobo_user:Happy1234@ds029817.mlab.com:29817/mobodb");
 const Schema = mongoose.Schema;
 const settingsSchema = new Schema({
     status:String,

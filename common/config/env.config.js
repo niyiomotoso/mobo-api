@@ -1,5 +1,5 @@
 module.exports = {
-    "port": 3601,
+    "port": 3600,
     "appEndpoint": "http://localhost:3600",
     "apiEndpoint": "http://localhost:3600",
     "cdn_path":"http://leap.ng/DO_NOT_DELETE/uploads/",
