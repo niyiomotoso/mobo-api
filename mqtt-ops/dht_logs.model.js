@@ -5,6 +5,7 @@ const logSchema = new Schema({
     temperature: String,
     humidity: String,
     device_id: String,
+    time: String,
 }, {timestamps: true});
 
 logSchema.virtual('id').get(function () {
@@ -21,8 +22,9 @@ exports.addLog = (logData) => {
     var temperature = logData.temperature;
     var humidity = logData.humidity;
     var device_id = logData.device_id;
+    var time  = logData.time;
     return new Promise( (resolve, reject)=> {
-        let session = {"temperature": temperature, "humidity": humidity,  "device_id": device_id};
+        let session = {"temperature": temperature, "humidity": humidity,  "device_id": device_id, "time":time};
         const log = new Log(session);
         log.save(
                 function(err, newLog){  
