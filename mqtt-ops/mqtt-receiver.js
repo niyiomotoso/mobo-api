@@ -95,7 +95,7 @@ const getApiAndEmit = async socket => {
                var now = new Date().getTime();
                var diff = now - datetime; 
               
-               if(diff >  (1800 * 1000 ) ){
+               if(diff >  (600 * 1000 ) ){
                 console.log("diff", diff);
               logModel.addLog(payload);
               redis_client.set('last_saved_time', new Date().toLocaleString());
