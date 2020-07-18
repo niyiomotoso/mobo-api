@@ -28,7 +28,7 @@
     "express": "^4.8.7",
     "hoek": ">=4.2.1",
     "jsonwebtoken": "^7.3.0",
-    "lodash": ">=4.17.13",
+    "lodash": ">=4.17.19",
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.13",
     "mongoose": "^5.1.1",
